@@ -1,11 +1,11 @@
 import React from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { Header } from './Header';
-import { Home } from './Home/Home';
-import { Manage } from './Manage/Manage';
-import { Schedule } from './SetUp/Schedule';
-import { Automation } from './SetUp/Automation';
-import { BackRoom } from './SetUp/BackRoom';
+import { Home } from '../Home/Home';
+import { Manage } from '../Manage/Manage';
+import { Schedule } from '../SetUp/Schedule';
+import { Automation } from '../SetUp/Automation';
+import { BackRoom } from '../SetUp/BackRoom';
 
 const App = () => {
   return (
