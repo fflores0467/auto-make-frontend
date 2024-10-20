@@ -9,19 +9,19 @@ export const Header = () => {
   const currentPage = useLocation().pathname;
 
   return (
-    <Navbar expand="lg" className="bg-body-tertiary">
+    <Navbar style={{paddingBottom: "1%"}} expand="lg" className="bg-body-tertiary">
       <Container fluid>
         <Navbar.Brand><Link to="/" style={{ textDecoration: 'none', color: 'inherit' }}>AutoMake</Link></Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
-            <Nav.Link className={currentPage === '/home' ? 'nav-link active' : 'nav-link'}> 
+            <Nav.Link className={currentPage.startsWith('/home')? 'nav-link active' : 'nav-link'}> 
               <Link to="/home" style={{ textDecoration: 'none', color: 'inherit' }}>Home</Link>
             </Nav.Link>
-            <Nav.Link className={currentPage === '/setup' ? 'nav-link active' : 'nav-link'}> 
-              <Link to="/setup" style={{ textDecoration: 'none', color: 'inherit' }}>Set Up</Link>
+            <Nav.Link className={currentPage.startsWith('/setup') ? 'nav-link active' : 'nav-link'}> 
+              <Link to="/setup/schedule" style={{ textDecoration: 'none', color: 'inherit' }}>Set Up</Link>
             </Nav.Link>
-            <Nav.Link className={currentPage === '/manage' ? 'nav-link active' : 'nav-link'}> 
+            <Nav.Link className={currentPage.startsWith('/manage') ? 'nav-link active' : 'nav-link'}> 
               <Link to="/manage" style={{ textDecoration: 'none', color: 'inherit' }}>Manage</Link>
             </Nav.Link>
             <NavDropdown title="Dropdown" id="basic-nav-dropdown">
