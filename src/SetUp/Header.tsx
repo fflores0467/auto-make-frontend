@@ -15,13 +15,13 @@ export const Header = () => {
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-auto">
                         <Nav.Link className={currentPage === '/setup/schedule' ? 'nav-link active' : 'nav-link'}> 
-                            <Link to="/setup/schedule" style={{ textDecoration: 'none', color: 'inherit' }}>Create Schedule</Link>
+                            <Link to="/setup/schedule" style={{ textDecoration: 'none', color: 'inherit' }}>Build Scheduler</Link>
                         </Nav.Link>
                         <Nav.Link className={currentPage === '/setup/backroom' ? 'nav-link active' : 'nav-link'}> 
                             <Link to="/setup/backroom" style={{ textDecoration: 'none', color: 'inherit', cursor: 'default' }}>|</Link>
                         </Nav.Link>
                         <Nav.Link className={currentPage === '/setup/automation' ? 'nav-link active' : 'nav-link'}> 
-                            <Link to="/setup/automation" style={{ textDecoration: 'none', color: 'inherit' }}>Create Automation</Link>
+                            <Link to="/setup/automation" style={{ textDecoration: 'none', color: 'inherit' }}>Configure Automation Settings</Link>
                         </Nav.Link>
                     </Nav>
                 </Navbar.Collapse>
