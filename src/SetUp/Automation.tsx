@@ -7,7 +7,7 @@ import Container from 'react-bootstrap/Container';
 
 export const Automation = () => {
 
-    const scheduleName = useSelector((state: RootState) => state.schedule.name); 
+    const automation_id = useSelector((state: RootState) => state.schedule.automation_id); 
 
     return(
         <Container fluid>
@@ -16,8 +16,8 @@ export const Automation = () => {
                     <Header></Header>
                 </Card.Header>
                 <Card.Body> 
-                    {!scheduleName ? 
-                        <h5>Please Return to "Build Scheduler" Page</h5> : <h5>Scheduler: {scheduleName}</h5> 
+                    {!automation_id ? 
+                        <h5>Please Return to "Build Scheduler" and Selection an Automation</h5> : <h5>Scheduler: {automation_id}</h5> 
                     }
                 </Card.Body>
             </Card>

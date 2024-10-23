@@ -33,14 +33,14 @@ const scheduleSlice = createSlice({
   } as ScheduleState,
   reducers: {
     // Reducer to set the schedule name
-    setScheduleInputState: (state, action: PayloadAction<{ name: string, value: string }>) => {
-      state.name = action.payload.value; 
+    setScheduleState: (state, action: PayloadAction<Partial<ScheduleState>>) => {
+      return {...state, ...action.payload };
     }
   }
 });
 
 // Export the action to dispatch from components
-export const { setScheduleInputState } = scheduleSlice.actions;
+export const { setScheduleState } = scheduleSlice.actions;
 
 // Export the reducer to add to the store
 export default scheduleSlice.reducer;
