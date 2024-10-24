@@ -23,12 +23,8 @@ export const Schedule = () => {
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
-        // Handle date inputs (convert string back to Date)
-        if (name === 'start_date' || name === 'end_date') {
-            dispatch(setScheduleState({ [name]: new Date(value) })); // Only update the changed field
-        }
         // Handle numeric inputs (convert string to number)
-        else if (name === 'interval' || name === 'automation_id' || name === 'isContinuous') {
+        if (name === 'interval' || name === 'automation_id' || name === 'isContinuous') {
             dispatch(setScheduleState({ [name]: parseInt(value, 10) }));
         }
         // Handle string inputs
@@ -67,7 +63,7 @@ export const Schedule = () => {
                                         type="date" 
                                         onChange={handleChange} 
                                         name='start_date'
-                                        value={schedule.start_date.toISOString().split('T')[0]}
+                                        value={schedule.start_date}
                                     />
                                 </Form.Group>
                             </Col>
@@ -78,7 +74,7 @@ export const Schedule = () => {
                                         type="date" 
                                         onChange={handleChange} 
                                         name='end_date'
-                                        value={schedule.end_date.toISOString().split('T')[0]}
+                                        value={schedule.end_date}
                                     />
                                 </Form.Group>
                             </Col>
@@ -135,6 +131,8 @@ export const Schedule = () => {
                                     >
                                         <option value={0}>Select Automation...</option> 
                                         <option value={1}>Universal Hotel Finder</option>
+                                        <option value={2}>Disney Food</option>
+
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
@@ -153,7 +151,7 @@ export const Schedule = () => {
                                 </Form.Group>
                             </Col>
                         </Row>              
-                        <Row><Col><Button type="submit">Submit</Button></Col></Row>
+                        {/* <Row><Col><Button type="submit">Submit</Button></Col></Row> */}
                     </Form>
                 </Card.Body>
             </Card>

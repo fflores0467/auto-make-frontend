@@ -4,8 +4,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 // Structure for Scheduler items
 type ScheduleState = {
   name: string;
-  start_date: Date;
-  end_date: Date;
+  start_date: string;
+  end_date: string;
   interval: number;
   time_unit: string;
   specific_time: string;
@@ -14,9 +14,8 @@ type ScheduleState = {
 }
 
 // Build start and end dates 
-const start_date: Date = new Date();
-const end_date: Date = new Date(start_date);
-end_date.setDate(start_date.getDate() + 30);
+const start_date: string = new Date().toISOString().split("T")[0];
+const end_date: string = new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0];
 
 // Create the slice
 const scheduleSlice = createSlice({
