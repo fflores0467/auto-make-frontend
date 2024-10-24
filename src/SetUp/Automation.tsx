@@ -1,26 +1,34 @@
-import { useEffect, useState } from 'react';
+import { Header } from "./Header";
 
-import { useDispatch, useSelector } from 'react-redux'
-import { setAutomationState } from '../features/setup/automationSlice'
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 
-import type { RootState, AppDispatch } from '../store'
+import { useDispatch, useSelector } from 'react-redux';
+import type { RootState, AppDispatch } from '../store';
+import { setAutomationState } from '../features/setup/automationSlice';
+import { clearScheduleName } from '../features/setup/scheduleSlice'
 
-import { Header } from "./Header"
 import Card from 'react-bootstrap/Card';
 import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Spinner from 'react-bootstrap/Spinner';
+import Nav from 'react-bootstrap/Nav';
+import { LinkContainer } from 'react-router-bootstrap';
 import Button from 'react-bootstrap/Button';
 
 export const Automation = () => {
     const dispatch = useDispatch<AppDispatch>(); 
     const scheduleState = useSelector((state: RootState) => state.schedule);
-    const automation = useSelector((state: RootState) => state.automation); 
+    const automationState = useSelector((state: RootState) => state.automation); 
     const automation_id = scheduleState.automation_id;
     
     const [isLoading, setIsLoading] = useState(true);
+    const [success, setSuccess] = useState('')
+    const [error, setError] = useState('');
+
+    // settings from the database, stored in state for user input boxes
     const [settings, setSettings] = useState({
         message: "", 
         data: {
@@ -28,92 +36,155 @@ export const Automation = () => {
             name: '', 
             parameters: {} as Record<string, string> 
         }
-    })
+    });
 
     useEffect(() => {
         if (automation_id && automation_id !== 0) {
-            setIsLoading(true)
-            fetch(`http://localhost:8080/read-automation?id=${automation_id}`)
-                .then((res) => res.json())
-                .then((json) => {
-                    try {
-                        // Parse the parameters JSON string and store it as an object
-                        const parsedParameters = JSON.parse(json.data.parameters);
-                        setSettings({
-                            ...json, // Spread the rest of the settings
-                            data: {
-                                ...json.data,
-                                parameters: parsedParameters // Replace parameters string with the parsed object
-                            }
-                        });
-                    } catch (error) {
-                        console.error('Failed to parse parameters:', error);
-                    } finally {
-                        setIsLoading(false)
-                    }
-                })
-                .catch((err) => {
-                    console.error('Failed to fetch automation settings:', err);
-                    setIsLoading(false)
-                });
+            setError("");
+            setIsLoading(true);
+            axios.get(`http://localhost:8080/read-automation`, {
+                params: { id: automation_id },
+                timeout: 5000,
+            })
+            .then((response) => {
+                const json = response.data;
+                try {
+                    const parsedParameters = JSON.parse(json.data.parameters);
+                    setSettings({
+                        ...json,
+                        data: {
+                            ...json.data,
+                            parameters: parsedParameters,
+                        }
+                    });
+                    setError("");
+                } catch (error) {
+                    console.error('Failed to parse parameters:', error);
+                    setError("An error occurred while parsing automation parameters.");
+                }
+            })
+            .catch((err) => {
+                console.error('Failed to fetch automation parameters:', err);
+                setError("An error occurred while fetching automation parameters.");
+            })
+            .finally(() => setIsLoading(false));
+        } else {
+            setError('Please select an automation from the "Build Automation" Page.');
+            setIsLoading(false);
         }
-    }, [automation_id]); // Dependency array ensures this runs when `automation_id` changes
+    }, [automation_id]);
 
+    // Dispatch automation state in redux to keep data globally
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
-        dispatch(setAutomationState({ field: name, value })); // Dispatch the field name and value to Redux
-    };    
+        dispatch(setAutomationState({ field: name, value })); // Update automation parameters in Redux
+    };
 
-    if (!automation_id || settings.data.automation_id === 0) {
-        return (
-            <Container fluid>
-                <Card>
-                    <Card.Header>
-                        <Header></Header>
-                    </Card.Header>
-                    <Card.Body> 
-                        <Card border="warning" >
-                            <Card.Body>
-                                <Card.Title>Unable to Proceed</Card.Title>
-                                <Card.Text>
-                                    Please Return to the "Build Schedule" Page and Select An Automation to Run.
-                                </Card.Text>
-                            </Card.Body>
-                        </Card>
-                    </Card.Body>
-                </Card>
-            </Container>
-        )     
-    }
+    // Handle form submission with validation
+    const handleSubmit = async () => {
+        setError("")
+        const findMissingFields = (obj: Record<string, any>) =>
+            Object.entries(obj)
+                .filter(([key, value]) => value === null || value === undefined || value === "")
+                .map(([key]) => key); // Return the keys of missing fields
+
+        const missingAutomationFields = findMissingFields(automationState.parameters);
+        const missingScheduleFields = findMissingFields(scheduleState);
+
+        if (Object.keys(settings.data.parameters).length !== Object.keys(automationState.parameters).length) {
+            setError('Please fill in all fields on the "Configure Automation Settings" Page.');
+            return;
+        }
+        
+        if (missingAutomationFields.length > 0) {
+            setError(`Please fill in the following fields on the "Configure Automation Settings" Page:\n${missingAutomationFields.join(', ')}`);
+            return;
+        }
+
+        if (missingScheduleFields.length > 0) {
+            setError(`Please fill in the following fields on the "Build Scheduler" Page:\n${missingScheduleFields.join(', ')}`);
+            return;
+        }
+
+        const jobData = {
+            name: scheduleState.name,
+            automation_id: automation_id,
+            start_date: scheduleState.start_date,
+            end_date: scheduleState.end_date,
+            isActive: true,
+            isContinuous: scheduleState.isContinuous,
+            interval: scheduleState.interval,
+            time_unit: scheduleState.time_unit,
+            specific_time: scheduleState.specific_time,
+            parameters: automationState.parameters // Get automation parameters from Redux
+        };
+
+        try {
+            setIsLoading(true);
+            const response = await axios.post('http://localhost:8080/create-job', jobData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            console.log('Job created successfully:', response.data);
+            setSuccess(`The Schedule "${scheduleState.name}" was Created. The Automation "${settings.data.name}" Scheduled to Run.\n
+                Feel Free to Build a New Schedule!`);
+            dispatch(clearScheduleName());
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+                const errorMessage = error.response?.data?.message || 'An error occurred';
+                console.error('Error response:', errorMessage);
+                setError(errorMessage.includes("SQLITE_CONSTRAINT: UNIQUE constraint failed") ? `"${scheduleState.name}" is Already in Use` : `${errorMessage}`)
+                return;
+            }
+            console.error('An unknown error occurred:', (error as Error).message || error);
+            setError('An unknown error occurred');
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     if (isLoading) {
         return (
             <Container fluid>
-                <Card>
+                <Card border='light'>
                     <Card.Header>
-                        <Header></Header>
+                        <Header />
                     </Card.Header>
                     <Card.Body> 
-                        <Spinner animation="border" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                        </Spinner>
+                        <Row className="justify-content-md-center">
+                            <Spinner animation="border" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </Spinner>
+                        </Row>
                     </Card.Body>
                 </Card>
             </Container>
-        )
+        );
     }
 
-    return(
+    const borderType = error ? 'danger' : success ? 'success' : 'primary';
+    return (
         <Container fluid>
-            <Card>
+            <Card border={borderType}>
                 <Card.Header>
-                    <Header></Header>
+                    <Header />
                 </Card.Header>
                 <Card.Body> 
+                    {(error || success) && (
+                        <Card.Body> 
+                            <Card border='secondary'>
+                                <Card.Body>
+                                    <Card.Title>{error ? 'Unable to Proceed' : 'Success!'}</Card.Title>
+                                    <Card.Text>{error || success}</Card.Text>
+                                </Card.Body>
+                            </Card>
+                        </Card.Body>
+                    )}
                     <Card.Header>
-                        <h5>{settings.data.name}</h5>
+                        <h5>{settings.data.name || "This Automation"}</h5>
                     </Card.Header>
-                    <br/>
+                    <br />
                     <Form>
                         <Row>
                             {/* Left Side */}
@@ -123,13 +194,13 @@ export const Automation = () => {
                                         <Col>
                                             <Form.Group>
                                                 <Form.Label style={{textTransform: 'capitalize'}}>{field}</Form.Label>
-                                                    <Form.Control
+                                                <Form.Control
                                                     placeholder={type === 'number' ? `Enter # of ${field}` : `Enter ${field}`}
                                                     name={field}
                                                     onChange={handleChange}
-                                                    value={automation.parameter[field] || ''} // Read the value from Redux, fallback to empty string
+                                                    value={automationState.parameters[field] || ''}
                                                     type={type}
-                                                    />
+                                                />
                                             </Form.Group>
                                         </Col>
                                     </Row>
@@ -138,23 +209,33 @@ export const Automation = () => {
 
                             {/* Right Side */}
                             <Col md={6} className="border-start ps-3">
-                                    <Card border="primary" >
-                                        <Card.Header>{scheduleState.name || "Unnamed"} Schedule Details</Card.Header>
-                                        <Card.Body>
-                                            <Card.Text>Start Date: {scheduleState.start_date}</Card.Text>
-                                            <Card.Text>End Date: {scheduleState.end_date}</Card.Text>
-                                            <Card.Text>
-                                                Run "{settings.data.name || 'this automation'}"{' '}
-                                                every {scheduleState.interval || 'N/A'} {scheduleState.time_unit || 'N/A'}{' '}
-                                                at {scheduleState.specific_time || 'N/A'}{' '}
-                                                until {scheduleState.isContinuous ? 'the criteria is met' : 'the end date is reached'}.
-                                            </Card.Text>
-                                        </Card.Body>
-                                    </Card>
+                                <Card border="secondary">
+                                    <Card.Header>{scheduleState.name || "Unnamed"} Schedule Details</Card.Header>
+                                    <Card.Body>
+                                        <Card.Text>Start Date: {scheduleState.start_date}</Card.Text>
+                                        <Card.Text>End Date: {scheduleState.end_date}</Card.Text>
+                                        <Card.Text>
+                                            Run "{settings.data.name || 'This Automation'}"{' '}
+                                            every {scheduleState.interval || 'N/A'} {scheduleState.time_unit || 'N/A'}{' '}
+                                            at {scheduleState.specific_time || 'N/A'}{' '}
+                                            until {scheduleState.isContinuous ? 'the criteria is met' : 'the end date is reached'}.
+                                        </Card.Text>
+                                    </Card.Body>
+                                </Card>
                                 <div className="d-grid gap-2" style={{paddingTop: "1%"}}>
-                                    <Button variant="primary" size="lg">
-                                        Proceed to Checkout
+                                    <Button onClick={handleSubmit} disabled={isLoading || success.length > 0} variant="primary" size="lg">
+                                        Create Automation Schedule
                                     </Button>
+                                    {success.length > 0 && (
+                                        <p style={{ textAlign: 'right' }}>
+                                            *Schedule created successfully.{' '}
+                                            <LinkContainer to="/setup/schedule">
+                                                <Nav.Link >
+                                                    <p style={{ display: 'inline', textDecoration: 'underline', padding: 0, marginLeft: '5px' }}>Return to Build Scheduler</p>
+                                                </Nav.Link>
+                                            </LinkContainer>
+                                        </p>
+                                    )}
                                 </div>
                             </Col>
                         </Row>
@@ -162,5 +243,5 @@ export const Automation = () => {
                 </Card.Body>
             </Card>
         </Container>
-    )
-}
+    );
+};

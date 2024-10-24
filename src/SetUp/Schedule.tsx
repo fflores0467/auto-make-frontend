@@ -1,10 +1,12 @@
 import { Header } from './Header';
 
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+
 import { useDispatch, useSelector } from 'react-redux'
+import type { RootState, AppDispatch } from '../store'
 import { setScheduleState } from '../features/setup/scheduleSlice'
 import { clearAutomationState } from '../features/setup/automationSlice'
-
-import type { RootState, AppDispatch } from '../store'
 
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
@@ -14,8 +16,31 @@ import Card from 'react-bootstrap/Card';
 
 export const Schedule = () => {
     const dispatch = useDispatch<AppDispatch>(); 
-    const schedule = useSelector((state: RootState) => state.schedule); 
+    const scheduleState = useSelector((state: RootState) => state.schedule); 
 
+    const [automations, setAutomations] = useState<{ automation_id: number, name: string }[]>([]); // For the dropdown
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    // Fetch all automations when component mounts
+    useEffect(() => {
+        const fetchAutomations = async () => {
+            try {
+                const response = await axios.get('http://localhost:8080/read-automation'); // Replace with your actual endpoint
+                setAutomations(response.data.data); // Assuming the data is an array of automations under `data`
+                setError('');
+            } catch (err) {
+                console.error('Error fetching automations:', err);
+                setError('Failed to load automations.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAutomations();
+    }, []);
+
+    
     type TimeUnit = {
         unit: string,
         time_str: string
@@ -38,10 +63,10 @@ export const Schedule = () => {
             dispatch(setScheduleState({ [name]: value }));
         }
     };
-    
+
     return (
         <Container fluid>
-            <Card>
+            <Card border="primary">
                 <Card.Header>
                     <Header></Header>
                 </Card.Header>
@@ -55,7 +80,7 @@ export const Schedule = () => {
                                         placeholder='Enter Schedule Name'
                                         onChange={handleChange} 
                                         name='name'
-                                        value={schedule.name}
+                                        value={scheduleState.name}
                                     />
                                 </Form.Group>
                             </Col>
@@ -69,7 +94,7 @@ export const Schedule = () => {
                                         type="date" 
                                         onChange={handleChange} 
                                         name='start_date'
-                                        value={schedule.start_date}
+                                        value={scheduleState.start_date}
                                     />
                                 </Form.Group>
                             </Col>
@@ -80,7 +105,7 @@ export const Schedule = () => {
                                         type="date" 
                                         onChange={handleChange} 
                                         name='end_date'
-                                        value={schedule.end_date}
+                                        value={scheduleState.end_date}
                                     />
                                 </Form.Group>
                             </Col>
@@ -95,7 +120,7 @@ export const Schedule = () => {
                                         type="number" 
                                         onChange={handleChange} 
                                         name='interval'
-                                        value={schedule.interval}
+                                        value={scheduleState.interval}
                                     />
                                 </Form.Group>
                             </Col>
@@ -106,7 +131,7 @@ export const Schedule = () => {
                                         style={{textTransform: 'capitalize'}} 
                                         aria-label="Default select example" 
                                         name='time_unit'
-                                        value={schedule.time_unit}
+                                        value={scheduleState.time_unit}
                                         onChange={handleChange} 
                                     >
                                         {time_units.map((x) => (
@@ -119,10 +144,10 @@ export const Schedule = () => {
                                 <Form.Group>
                                     <Form.Label>At:</Form.Label>
                                     <Form.Control 
-                                        placeholder={schedule.specific_time}
+                                        placeholder={scheduleState.specific_time}
                                         onChange={handleChange} 
                                         name='specific_time'
-                                        value={schedule.specific_time}
+                                        value={scheduleState.specific_time}
                                     />
                                 </Form.Group>
                             </Col>
@@ -133,13 +158,17 @@ export const Schedule = () => {
                                         aria-label="Default select example" 
                                         onChange={handleChange} 
                                         name='automation_id' 
-                                        value={schedule.automation_id}
+                                        value={scheduleState.automation_id}
+                                        disabled={loading || automations.length === 0} // Disable until automations load
                                     >
-                                        <option value={0}>Select Automation...</option> 
-                                        <option value={1}>Universal Hotel Finder</option>
-                                        <option value={2}>Disney Food</option>
-
+                                        <option value={0}>{loading ? 'Loading Automations...' : 'Select Automation...'}</option> 
+                                        {automations.map((automation) => (
+                                            <option key={automation.automation_id} value={automation.automation_id}>
+                                                {automation.name}
+                                            </option>
+                                        ))}
                                     </Form.Select>
+                                    {error && <p className="text-danger">{error}</p>}
                                 </Form.Group>
                             </Col>
                             <Col md={2}>
@@ -149,7 +178,7 @@ export const Schedule = () => {
                                         aria-label="Default select example" 
                                         onChange={handleChange} 
                                         name='isContinuous' 
-                                        value={schedule.isContinuous}
+                                        value={scheduleState.isContinuous}
                                     >
                                         <option value={0}>End Date Reached</option>
                                         <option value={1}>Critiria Met</option>
@@ -157,7 +186,6 @@ export const Schedule = () => {
                                 </Form.Group>
                             </Col>
                         </Row>              
-                        {/* <Row><Col><Button type="submit">Submit</Button></Col></Row> */}
                     </Form>
                 </Card.Body>
             </Card>
