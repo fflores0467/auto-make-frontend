@@ -1,10 +1,11 @@
 import { Header } from './Header';
 
 import { useDispatch, useSelector } from 'react-redux'
-import { setScheduleState } from '../features/schedule/scheduleSlice'
+import { setScheduleState } from '../features/setup/scheduleSlice'
+import { clearAutomationState } from '../features/setup/automationSlice'
+
 import type { RootState, AppDispatch } from '../store'
 
-import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -23,6 +24,11 @@ export const Schedule = () => {
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
+
+        if (name === 'automation_id'){
+            dispatch(clearAutomationState());
+        }
+
         // Handle numeric inputs (convert string to number)
         if (name === 'interval' || name === 'automation_id' || name === 'isContinuous') {
             dispatch(setScheduleState({ [name]: parseInt(value, 10) }));

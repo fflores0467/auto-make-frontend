@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 
-import { useSelector } from 'react-redux'
-import type { RootState } from '../store'
+import { useDispatch, useSelector } from 'react-redux'
+import { setAutomationState } from '../features/setup/automationSlice'
+
+import type { RootState, AppDispatch } from '../store'
 
 import { Header } from "./Header"
 import Card from 'react-bootstrap/Card';
@@ -12,8 +14,9 @@ import Col from 'react-bootstrap/Col';
 import Spinner from 'react-bootstrap/Spinner';
 
 export const Automation = () => {
-
+    const dispatch = useDispatch<AppDispatch>(); 
     const scheduleState = useSelector((state: RootState) => state.schedule);
+    const automation = useSelector((state: RootState) => state.automation); 
     const automation_id = scheduleState.automation_id;
     
     const [isLoading, setIsLoading] = useState(true);
@@ -55,6 +58,10 @@ export const Automation = () => {
         }
     }, [automation_id]); // Dependency array ensures this runs when `automation_id` changes
 
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value } = event.target;
+        dispatch(setAutomationState({ field: name, value })); // Dispatch the field name and value to Redux
+    };    
 
     if (!automation_id || settings.data.automation_id === 0) {
         return (
@@ -95,7 +102,6 @@ export const Automation = () => {
         )
     }
 
-    console.log(settings)
     return(
         <Container fluid>
             <Card>
@@ -119,6 +125,8 @@ export const Automation = () => {
                                                 <Form.Control
                                                     placeholder={`Enter ${field}`}
                                                     name={field}
+                                                    onChange={handleChange}
+                                                    value={automation.parameter[field] || ''} // Read the value from Redux, fallback to empty string
                                                     type={type}
                                                 />
                                             </Form.Group>
@@ -131,7 +139,7 @@ export const Automation = () => {
                             <Col md={6} className="border-start ps-3">
                                 <Card.Body> 
                                     <Card border="primary" >
-                                        <Card.Header>{scheduleState.name}'s Schedule Details</Card.Header>
+                                        <Card.Header>{scheduleState.name || "Unnamed"} Schedule Details</Card.Header>
                                         <Card.Body>
                                             <Card.Text>Start Date: {scheduleState.start_date}</Card.Text>
                                             <Card.Text>End Date: {scheduleState.end_date}</Card.Text>
@@ -141,8 +149,6 @@ export const Automation = () => {
                                                 at {scheduleState.specific_time || 'N/A'}{' '}
                                                 until {scheduleState.isContinuous ? 'the criteria is met' : 'the end date is reached'}.
                                             </Card.Text>
-
-
                                         </Card.Body>
                                     </Card>
                                 </Card.Body>
