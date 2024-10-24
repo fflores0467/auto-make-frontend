@@ -12,6 +12,7 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Spinner from 'react-bootstrap/Spinner';
+import Button from 'react-bootstrap/Button';
 
 export const Automation = () => {
     const dispatch = useDispatch<AppDispatch>(); 
@@ -122,13 +123,13 @@ export const Automation = () => {
                                         <Col>
                                             <Form.Group>
                                                 <Form.Label style={{textTransform: 'capitalize'}}>{field}</Form.Label>
-                                                <Form.Control
-                                                    placeholder={`Enter ${field}`}
+                                                    <Form.Control
+                                                    placeholder={type === 'number' ? `Enter # of ${field}` : `Enter ${field}`}
                                                     name={field}
                                                     onChange={handleChange}
                                                     value={automation.parameter[field] || ''} // Read the value from Redux, fallback to empty string
                                                     type={type}
-                                                />
+                                                    />
                                             </Form.Group>
                                         </Col>
                                     </Row>
@@ -137,7 +138,6 @@ export const Automation = () => {
 
                             {/* Right Side */}
                             <Col md={6} className="border-start ps-3">
-                                <Card.Body> 
                                     <Card border="primary" >
                                         <Card.Header>{scheduleState.name || "Unnamed"} Schedule Details</Card.Header>
                                         <Card.Body>
@@ -151,7 +151,11 @@ export const Automation = () => {
                                             </Card.Text>
                                         </Card.Body>
                                     </Card>
-                                </Card.Body>
+                                <div className="d-grid gap-2" style={{paddingTop: "1%"}}>
+                                    <Button variant="primary" size="lg">
+                                        Proceed to Checkout
+                                    </Button>
+                                </div>
                             </Col>
                         </Row>
                     </Form>
