@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch } from '../store';
 import { setAutomationState } from '../features/setup/automationSlice';
+import { clearScheduleName } from '../features/setup/scheduleSlice'
 
 import Card from 'react-bootstrap/Card';
 import Container from 'react-bootstrap/Container';
@@ -73,33 +74,6 @@ export const Automation = () => {
         }
     }, [automation_id]);
 
-    // Onload or when schedule name changes, check if the schedule already exists
-    const [submitState, setSubmitState] = useState('')
-    useEffect(() => {
-        if (scheduleState.name) {
-            setLoading(true);
-            axios.get(`http://localhost:8080/read-job`, {
-                params: { name: encodeURIComponent(scheduleState.name) },
-                timeout: 5000,
-                validateStatus: (status) => status === 200 || status === 404, // Allow 404 to pass through
-            })
-            .then((response) => {
-                if (response.status === 404 && response.data?.message === "No jobs found") {
-                    setSubmitState('Create'); // Job not found, proceed with create mode
-                } else if (response.status === 200) {
-                    setSubmitState('Update'); // Job exists
-                } else {
-                    throw new Error("Unexpected response status"); // Force catch if other issues
-                }
-            })
-            .catch((err) => {
-                console.error("Error or unexpected 404:", err); // Catch other errors or unexpected 404s
-                setError("An unexpected error occurred.");
-            })
-            .finally(() => setLoading(false));
-        }
-    }, [scheduleState.name, success]);
-
     // Dispatch automation state in redux to keep data globally
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
@@ -107,7 +81,7 @@ export const Automation = () => {
     };
 
     // Handle form submission with validation
-    const handleSubmit = async (requestType: string) => {
+    const handleSubmit = async () => {
         setError("");
         const findMissingFields = (obj: Record<string, any>) =>
             Object.entries(obj)
@@ -115,22 +89,22 @@ export const Automation = () => {
                 .map(([key]) => key); // Return the keys of missing fields
         const missingAutomationFields = findMissingFields(automationState.parameters);
         const missingScheduleFields = findMissingFields(scheduleState);
-    
+
         if (Object.keys(settings.data.parameters).length !== Object.keys(automationState.parameters).length) {
             setError('Please fill in all fields on the "Configure Automation Settings" Page.');
             return;
         }
-    
+        
         if (missingAutomationFields.length > 0) {
             setError(`Please fill in the following fields on the "Configure Automation Settings" Page:\n${missingAutomationFields.join(', ')}`);
             return;
         }
-    
+
         if (missingScheduleFields.length > 0) {
             setError(`Please fill in the following fields on the "Build Scheduler" Page:\n${missingScheduleFields.join(', ')}`);
             return;
         }
-    
+
         const jobData = {
             name: scheduleState.name,
             automation_id: automation_id,
@@ -141,30 +115,33 @@ export const Automation = () => {
             interval: scheduleState.interval,
             time_unit: scheduleState.time_unit,
             specific_time: scheduleState.specific_time,
-            parameters: automationState.parameters 
+            parameters: automationState.parameters // Get automation parameters from Redux
         };
-    
-        const url = requestType === 'create' 
-        ? 'http://localhost:8080/create-job' 
-        : `http://localhost:8080/update-job?name=${encodeURIComponent(scheduleState.name)}`;
-        const method = requestType === 'create' ? 'post' : 'put';
-    
+
         try {
             setLoading(true);
-            await axios({ method, url, data: jobData, headers: { 'Content-Type': 'application/json' } });
-            setSuccess(`The Schedule "${scheduleState.name}" was ${requestType === 'create' ? 'created' : 'updated'} successfully.`);
+            await axios.post('http://localhost:8080/create-job', jobData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            setSuccess(`The Schedule "${scheduleState.name}" was Created. The Automation "${settings.data.name}" is Scheduled to Run.\n
+                Feel Free to Build a New Schedule!`);
+            dispatch(clearScheduleName());
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 const errorMessage = error.response?.data?.message || 'An error occurred';
-                setError(errorMessage.includes("SQLITE_CONSTRAINT: UNIQUE constraint failed") ? `"${scheduleState.name}" is already in use` : errorMessage);
-            } else {
-                setError('An unknown error occurred');
+                console.error('Error response:', errorMessage);
+                setError(errorMessage.includes("SQLITE_CONSTRAINT: UNIQUE constraint failed") ? `"${scheduleState.name}" is Already in Use` : `${errorMessage}`)
+                return;
             }
+            console.error('An unknown error occurred:', (error as Error).message || error);
+            setError('An unknown error occurred');
         } finally {
             setLoading(false);
         }
     };
-    
+
     if (loading) {
         return (
             <Container fluid>
@@ -243,15 +220,15 @@ export const Automation = () => {
                                         </Card.Text>
                                     </Card.Body>
                                 </Card>
-                                <div className="d-grid gap-2" style={{ paddingTop: "1%" }}>
-                                    <Button onClick={() => handleSubmit(submitState.toLowerCase())} variant="primary" size="lg" disabled={loading}>
-                                        {`${submitState} Automation Schedule`}
+                                <div className="d-grid gap-2" style={{paddingTop: "1%"}}>
+                                    <Button onClick={handleSubmit} disabled={loading || success.length > 0} variant="primary" size="lg">
+                                        Create Automation Schedule
                                     </Button>
-                                    {success && (
+                                    {success.length > 0 && (
                                         <p style={{ textAlign: 'right' }}>
-                                            *Schedule {submitState === "Create" ? "Created" : "Updated"} successfully.
+                                            *Schedule created successfully.{' '}
                                             <LinkContainer to="/setup/schedule">
-                                                <Nav.Link>
+                                                <Nav.Link >
                                                     <span style={{ display: 'inline', textDecoration: 'underline', padding: 0, marginLeft: '5px' }}>Return to Build Scheduler</span>
                                                 </Nav.Link>
                                             </LinkContainer>
