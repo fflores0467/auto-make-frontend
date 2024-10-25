@@ -34,7 +34,7 @@ export const Manage = () => {
     useEffect(() => {
         const fetchJobsAndAutomations = async () => {
             try {
-                // Fetch jobs
+                // Fetch all jobs
                 const jobsResponse = await axios.get('http://localhost:8080/read-job');
                 const jobsData = jobsResponse.data.data;
     
@@ -42,7 +42,7 @@ export const Manage = () => {
                 const jobs = await Promise.all(
                     jobsData.map(async (job: Job) => {
                         const automationsResponse = await axios.get(`http://localhost:8080/read-automation`, {
-                            params: { id: job.automation_id },
+                            params: { id: encodeURIComponent(job.automation_id) },
                         });
                         const automation = automationsResponse.data;
     
@@ -131,7 +131,7 @@ export const Manage = () => {
                                         </Col>
                                         <Col md={2} className="border-start ps-3">
                                             <Row>
-                                                <Edit job_name={job.name} ></Edit>
+                                                <Edit job_name={job.name} setStates={[setSuccess, setError]}></Edit>
                                                 <Delete job_name={job.name} setStates={[setSuccess, setError]}></Delete>
                                             </Row>
                                         </Col>

@@ -9,7 +9,6 @@ import { Trash } from 'react-bootstrap-icons';
 export const Delete: React.FC<{job_name: string, setStates: Dispatch<SetStateAction<string>>[]}> = (props) => {
     const {job_name, setStates} = props;
     const [setSuccess, setError] = setStates;
-
     const [loading, setLoading] = useState(false);
 
     const handleDelete = async() => {
