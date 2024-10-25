@@ -27,7 +27,7 @@ const scheduleSlice = createSlice({
     interval: 5,
     time_unit: 'minutes',
     specific_time: ':00',
-    automation_id: 0,
+    automation_id: -1,
     isContinuous: 0
   } as ScheduleState,
   reducers: {
