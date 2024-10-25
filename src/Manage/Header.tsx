@@ -8,7 +8,7 @@ export const Header = () => {
             <Container fluid>
                 <Nav className="me-auto">
                     <Nav.Link className='nav-link active'>
-                        My Automation Schedules
+                        Manage Automation Schedules
                     </Nav.Link>
                 </Nav>
             </Container>
