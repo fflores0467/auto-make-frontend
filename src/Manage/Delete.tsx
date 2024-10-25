@@ -3,11 +3,12 @@ import React, { useState, Dispatch, SetStateAction } from 'react';
 import axios from 'axios';
 
 import Button from 'react-bootstrap/Button';
-import { Trash } from 'react-bootstrap-icons';
+import { Trash, XCircle } from 'react-bootstrap-icons';
 
-
-export const Delete: React.FC<{job_name: string, setStates: Dispatch<SetStateAction<string>>[]}> = (props) => {
-    const {job_name, setStates} = props;
+export const DeleteButton: React.FC<{ useEditState: [boolean, Dispatch<SetStateAction<boolean>>], job_name: string, setStates: Dispatch<SetStateAction<string>>[] }> = (props) => {
+    const { useEditState, job_name, setStates } = props;
+    
+    const [edit, setEdit] = useEditState; // Destructure edit and setEdit from useEditState
     const [setSuccess, setError] = setStates;
     const [loading, setLoading] = useState(false);
 
@@ -29,11 +30,16 @@ export const Delete: React.FC<{job_name: string, setStates: Dispatch<SetStateAct
     }
 
     return (
-        <><>
-        <Button onClick={handleDelete} disabled={loading} variant="danger" size="sm">  
-            <Trash /> {loading ? "Deleting..." : "Delete"}
-        </Button>
-        </></>
-
-    )
-}
+        <>
+            {edit ? (
+                <Button onClick={() => setEdit(false)} disabled={loading} variant="secondary" size="sm">
+                    <XCircle /> Cancel
+                </Button>
+            ) : (
+                <Button onClick={handleDelete} disabled={loading || edit} variant="danger" size="sm">
+                    <Trash /> {loading ? "Deleting..." : "Delete"}
+                </Button>
+            )}
+        </>
+    );
+};

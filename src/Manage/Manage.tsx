@@ -1,6 +1,8 @@
 import { Header } from './Header';
 import { Edit } from './Edit';
-import { Delete } from './Delete';
+import { DeleteButton } from './Delete';
+import { SaveButton } from './Save';
+
 
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -23,11 +25,12 @@ export const Manage = () => {
         automation_id: number;
         isContinuous: number;
         arguments: string;
-        automation_name: string; // Added automation_name to the Job type
+        automation: {name: string, parameters: string}; // Added automation_details to the Job type
     }
 
     const [jobs, setJobs] = useState<Job[]>([]);
-    const [success, setSuccess] = useState('')
+    const [success, setSuccess] = useState('');
+    const [edit, setEdit] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
 
@@ -49,7 +52,7 @@ export const Manage = () => {
                         // Return the job with the added automation name
                         return {
                             ...job,
-                            automation_name: automation.data.name, // Adding automation name to job object
+                            automation: {name: automation.data.name, parameters: automation.data.parameters}, // Adding automation name to job object
                         };
                     })
                 );
@@ -111,28 +114,15 @@ export const Manage = () => {
                                 <Card.Header as="h5">{job.name}</Card.Header>
                                 <Card.Body>
                                     <Row>
+                                        {/* Left Side */}
                                         <Col md={10}>
-                                            <Card.Text>
-                                                <strong>Automation:</strong> {job.automation_name}{' '}
-                                                | <strong>From:</strong> {job.start_date} <strong>To:</strong> {job.end_date}{' '}
-                                                | <strong>Interval:</strong> {job.interval}{' '}
-                                                | <strong>Time Unit:</strong> {job.time_unit}{' '}
-                                                | <strong>Specific Time:</strong> {job.specific_time}{' '}
-                                                | <strong>Continuous:</strong> {job.isContinuous ? 'true' : 'false'}{' '}
-                                            </Card.Text>
-
-                                            <Card.Text>
-                                            <strong>Arguments:</strong> {Object.entries(JSON.parse(job.arguments as string)).map(([key, value], i) => (
-                                                <React.Fragment key={i}>
-                                                    {key}: {String(value)}{i < Object.entries(JSON.parse(job.arguments)).length - 1 ? ', ' : ''}
-                                                </React.Fragment>
-                                                ))}
-                                            </Card.Text>
+                                            <Edit edit={edit} job={job} setStates={[setSuccess, setError]}></Edit>
                                         </Col>
+                                        {/* Right Side */}
                                         <Col md={2} className="border-start ps-3">
                                             <Row>
-                                                <Edit job_name={job.name} setStates={[setSuccess, setError]}></Edit>
-                                                <Delete job_name={job.name} setStates={[setSuccess, setError]}></Delete>
+                                                <SaveButton useEditState={[edit, setEdit]}></SaveButton>
+                                                <DeleteButton useEditState={[edit, setEdit]} job_name={job.name} setStates={[setSuccess, setError]}></DeleteButton>
                                             </Row>
                                         </Col>
                                     </Row>
