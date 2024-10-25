@@ -1,4 +1,6 @@
 import { Header } from './Header';
+import { Edit } from './Edit';
+import { Delete } from './Delete';
 
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -8,9 +10,6 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Spinner from 'react-bootstrap/Spinner';
-import Button from 'react-bootstrap/Button';
-
-import { PencilSquare, Trash } from 'react-bootstrap-icons'; // Import edit and delete icons
 
 export const Manage = () => {
 
@@ -28,8 +27,9 @@ export const Manage = () => {
     }
 
     const [jobs, setJobs] = useState<Job[]>([]);
+    const [success, setSuccess] = useState('')
     const [error, setError] = useState('');
-    const [isLoading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchJobsAndAutomations = async () => {
@@ -58,20 +58,19 @@ export const Manage = () => {
                 setJobs(jobs);
             } catch (err) {
                 console.error('Error fetching jobs or automations:', err);
-                setError('Failed to load jobs and automations.');
+                setError('Failed to load automation schedules.');
             } finally {
                 setLoading(false);
             }
         };
     
         fetchJobsAndAutomations();
-    }, []);
-    
+    }, [success]);
 
-    if (isLoading) {
+    if (loading) {
         return (
             <Container fluid>
-                <Card border='light'>
+                <Card border='warning'>
                     <Card.Header>
                         <Header />
                     </Card.Header>
@@ -87,25 +86,24 @@ export const Manage = () => {
         );
     }
 
-    const borderType = error ? 'danger' : 'primary';
+    const borderType = error ? 'danger' : success ? 'success' : 'secondary';
     return (
         <Container fluid>
-            <Card border={borderType}>
+            <Card border={'light'}>
                 <Card.Header>
                     <Header />
                 </Card.Header>
                 <Card.Body>
-                {error && (
+                {(error || success) && (
                     <Card.Body> 
-                        <Card border='secondary'>
+                        <Card border={borderType}>
                             <Card.Body>
-                                <Card.Title>Unable to Proceed</Card.Title>
-                                <Card.Text>{error}</Card.Text>
+                                <Card.Title>{error ? 'Unable to Proceed' : 'Success!'}</Card.Title>
+                                <Card.Text>{error || success}</Card.Text>
                             </Card.Body>
                         </Card>
                     </Card.Body>
                 )}
-
                 {jobs.length > 0 ? (
                     jobs.map((job, index) => (
                         <React.Fragment key={index}>
@@ -133,13 +131,8 @@ export const Manage = () => {
                                         </Col>
                                         <Col md={2} className="border-start ps-3">
                                             <Row>
-                                                <Button variant="warning mb-1" size="sm">
-                                                    <PencilSquare /> Edit
-                                                </Button>
-                                
-                                                <Button variant="danger" size="sm">  
-                                                    <Trash /> Delete
-                                                </Button>
+                                                <Edit job_name={job.name} ></Edit>
+                                                <Delete job_name={job.name} setStates={[setSuccess, setError]}></Delete>
                                             </Row>
                                         </Col>
                                     </Row>
@@ -149,7 +142,9 @@ export const Manage = () => {
                         </React.Fragment>
                     ))
                 ) : (
-                    <p>No jobs available.</p>
+                    <Card.Body>
+                        <Card.Text>No Automation Schedules are Available!</Card.Text>
+                    </Card.Body>
                 )}
                 </Card.Body>
             </Card>

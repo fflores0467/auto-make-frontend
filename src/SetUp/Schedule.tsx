@@ -66,7 +66,7 @@ export const Schedule = () => {
 
     return (
         <Container fluid>
-            <Card border="primary">
+            <Card border={"light"}>
                 <Card.Header>
                     <Header></Header>
                 </Card.Header>
