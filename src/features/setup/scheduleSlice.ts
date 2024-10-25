@@ -35,15 +35,11 @@ const scheduleSlice = createSlice({
     setScheduleState: (state, action: PayloadAction<Partial<ScheduleState>>) => {
       return {...state, ...action.payload };
     },
-    // Reducer to clear the schedule name
-    clearScheduleName: (state) => {
-      state.name = ''; // Clear the name
-    },
   }
 });
 
 // Export the action to dispatch from components
-export const { setScheduleState, clearScheduleName } = scheduleSlice.actions;
+export const { setScheduleState } = scheduleSlice.actions;
 
 // Export the reducer to add to the store
 export default scheduleSlice.reducer;
