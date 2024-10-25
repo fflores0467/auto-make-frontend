@@ -127,7 +127,7 @@ export const Automation = () => {
                 },
             });
             console.log('Job created successfully:', response.data);
-            setSuccess(`The Schedule "${scheduleState.name}" was Created. The Automation "${settings.data.name}" Scheduled to Run.\n
+            setSuccess(`The Schedule "${scheduleState.name}" was Created. The Automation "${settings.data.name}" is Scheduled to Run.\n
                 Feel Free to Build a New Schedule!`);
             dispatch(clearScheduleName());
         } catch (error) {
@@ -210,7 +210,7 @@ export const Automation = () => {
                             {/* Right Side */}
                             <Col md={6} className="border-start ps-3">
                                 <Card border="secondary">
-                                    <Card.Header>{scheduleState.name || "Unnamed"} Schedule Details</Card.Header>
+                                    <Card.Header>{scheduleState.name || ""} Schedule Details</Card.Header>
                                     <Card.Body>
                                         <Card.Text>Start Date: {scheduleState.start_date}</Card.Text>
                                         <Card.Text>End Date: {scheduleState.end_date}</Card.Text>

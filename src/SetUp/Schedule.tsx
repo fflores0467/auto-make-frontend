@@ -26,8 +26,8 @@ export const Schedule = () => {
     useEffect(() => {
         const fetchAutomations = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/read-automation'); // Replace with your actual endpoint
-                setAutomations(response.data.data); // Assuming the data is an array of automations under `data`
+                const response = await axios.get('http://localhost:8080/read-automation'); 
+                setAutomations(response.data.data); 
                 setError('');
             } catch (err) {
                 console.error('Error fetching automations:', err);
