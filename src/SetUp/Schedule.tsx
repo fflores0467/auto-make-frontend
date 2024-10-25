@@ -161,7 +161,7 @@ export const Schedule = () => {
                                         value={scheduleState.automation_id}
                                         disabled={loading || automations.length === 0} // Disable until automations load
                                     >
-                                        <option value={0}>{loading ? 'Loading Automations...' : 'Select Automation...'}</option> 
+                                        <option value={-1}>{loading ? 'Loading Automations...' : 'Select Automation...'}</option> 
                                         {automations.map((automation) => (
                                             <option key={automation.automation_id} value={automation.automation_id}>
                                                 {automation.name}
