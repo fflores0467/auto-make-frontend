@@ -28,7 +28,7 @@ export const Automation = () => {
     const [success, setSuccess] = useState('')
     const [error, setError] = useState('');
 
-    // settings from the database, stored in state for user input boxes
+    // settings schema from the database, stored in state for user input boxes
     const [settings, setSettings] = useState({
         message: "", 
         data: {
@@ -43,7 +43,7 @@ export const Automation = () => {
             setError("");
             setLoading(true);
             axios.get(`http://localhost:8080/read-automation`, {
-                params: { id: automation_id },
+                params: { id: encodeURIComponent(automation_id) },
                 timeout: 5000,
             })
             .then((response) => {
