@@ -39,7 +39,7 @@ export const Automation = () => {
     });
 
     useEffect(() => {
-        if (automation_id && automation_id !== 0) {
+        if (automation_id && automation_id > 0) {
             setError("");
             setLoading(true);
             axios.get(`http://localhost:8080/read-automation`, {
@@ -85,7 +85,7 @@ export const Automation = () => {
         setError("")
         const findMissingFields = (obj: Record<string, any>) =>
             Object.entries(obj)
-                .filter(([key, value]) => value === null || value === undefined || value === "")
+                .filter(([key, value]) => value === null || value === undefined || value === "" || value < 0)
                 .map(([key]) => key); // Return the keys of missing fields
 
         const missingAutomationFields = findMissingFields(automationState.parameters);
