@@ -1,5 +1,9 @@
 import React, { useState, Dispatch, SetStateAction } from 'react';
+
 import Card from 'react-bootstrap/Card';
+import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 type Job = {
     name: string;
@@ -31,6 +35,7 @@ export const Edit: React.FC<{ edit: boolean; job: Job; setStates: Dispatch<SetSt
     job,
     setStates,
 }) => {
+
     const [setSuccess, setError] = setStates;
     const [loading, setLoading] = useState(false);
 
@@ -67,61 +72,102 @@ export const Edit: React.FC<{ edit: boolean; job: Job; setStates: Dispatch<SetSt
         return (
             <>
                 <Card.Text as="div">
-                    <strong>Automation:</strong>
-                    <input value={job.automation.name} readOnly />{' '}
-                    | <strong>From:</strong>
-                    <input
-                        type="date"
-                        value={jobDetails.start_date}
-                        onChange={(e) => handleDetailsChange('start_date', e.target.value)}
-                    />{' '}
-                    | <strong>To:</strong>
-                    <input
-                        type="date"
-                        value={jobDetails.end_date}
-                        onChange={(e) => handleDetailsChange('end_date', e.target.value)}
-                    />{' '}
-                    | <strong>Interval:</strong>
-                    <input
-                        type="number"
-                        value={jobDetails.interval}
-                        onChange={(e) => handleDetailsChange('interval', Number(e.target.value))}
-                    />{' '}
-                    | <strong>Time Unit:</strong>
-                    <input
-                        type="text"
-                        value={jobDetails.time_unit}
-                        onChange={(e) => handleDetailsChange('time_unit', e.target.value)}
-                    />{' '}
-                    | <strong>Specific Time:</strong>
-                    <input
-                        type="time"
-                        value={jobDetails.specific_time}
-                        onChange={(e) => handleDetailsChange('specific_time', e.target.value)}
-                    />{' '}
-                    | <strong>Continuous:</strong>
-                    <input
-                        type="checkbox"
-                        checked={!!jobDetails.isContinuous}
-                        onChange={(e) => handleDetailsChange('isContinuous', e.target.checked ? 1 : 0)}
-                    />
-                </Card.Text>
+                    <Form>
+                        <Row>
+                            <Col md={2}>
+                                <Form.Group>
+                                    <Form.Label><strong>Automation:</strong></Form.Label>
+                                    <Form.Control 
+                                        placeholder='Enter Schedule Name'
+                                        name='automation_id'
+                                        value={job.automation.name}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={2}>
+                                <Form.Group>
+                                    <Form.Label><strong>From:</strong></Form.Label>
+                                    <Form.Control 
+                                        type='date'
+                                        name='start_date'
+                                        value={job.start_date}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={2}>
+                                <Form.Group>
+                                    <Form.Label><strong>To:</strong></Form.Label>
+                                    <Form.Control 
+                                        type='date'
+                                        name='end_date'
+                                        value={job.end_date}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={1}>
+                                <Form.Group>
+                                    <Form.Label><strong>Interval:</strong></Form.Label>
+                                    <Form.Control 
+                                        type='number'
+                                        name='interval'
+                                        value={job.interval}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={2}>
+                                <Form.Group>
+                                    <Form.Label><strong>Time Unit:</strong></Form.Label>
+                                    <Form.Control 
+                                        placeholder='Enter Time Unit'
+                                        name='time_unit'
+                                        value={job.time_unit}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={2}>
+                                <Form.Group>
+                                    <Form.Label><strong>Specific Time:</strong></Form.Label>
+                                    <Form.Control 
+                                        placeholder='Enter Specific Time'
+                                        name='specific_time'
+                                        value={job.specific_time}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={1}>
+                                <Form.Group>
+                                    <Form.Label><strong>Continuous:</strong></Form.Label>
+                                    <Form.Check 
+                                        type="switch"
+                                        name="isContinuous"
+                                        checked={Boolean(job.isContinuous)}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
 
-                <Card.Text as="div">
-                    <strong>Arguments:</strong>
-                    {Object.entries(parameters).map(([key, type], i) => (
-                        <div key={i} style={{ marginBottom: '5px' }}>
-                            <label>
-                                <strong>{key}</strong>:
-                                <input
-                                    type={type as string}
-                                    value={editedArguments[key] || ''}
-                                    onChange={(e) => handleArgumentChange(key, e.target.value)}
-                                />
-                            </label>
-                        </div>
-                    ))}
+                    </Form>
                 </Card.Text>
+                <br/>
+                <Card.Text as="div">
+                    <Form>
+                        <strong>Arguments:</strong>
+                        <Row>
+                            {Object.entries(parameters).map(([key, type], i) => (
+                                <Col key={i} md={2}>
+                                    <Form.Group>
+                                        <Form.Label><strong>{key}:</strong></Form.Label>
+                                        <Form.Control
+                                            type={type as string}
+                                            value={editedArguments[key] || ''}
+                                        />  
+                                    </Form.Group>
+                                </Col>
+                            ))}
+                        </Row>
+                    </Form>
+                </Card.Text>
+                
             </>
         );
     }
