@@ -3,8 +3,8 @@ import axios from 'axios';
 import Button from 'react-bootstrap/Button';
 import { Trash, XCircle } from 'react-bootstrap-icons';
 
-export const DeleteButton: React.FC<{ job_name: string, editRow: string | null, setEditRow: Dispatch<SetStateAction<string | null>>, setStates: Dispatch<SetStateAction<string>>[] }> = ({ job_name, editRow, setEditRow, setStates }) => {
-    const [setSuccess, setError] = setStates;
+export const DeleteButton: React.FC<{ job_name: string, edit: string | null, setStates: Dispatch<SetStateAction<string>>[] }> = ({ job_name, edit, setStates }) => {
+    const [setSuccess, setError, setEdit] = setStates;
     const [loading, setLoading] = useState(false);
 
     const handleDelete = async () => {
@@ -23,12 +23,12 @@ export const DeleteButton: React.FC<{ job_name: string, editRow: string | null, 
         }
     };
 
-    const isEditing = editRow === job_name;
+    const isEditing = edit === job_name;
 
     return (
         <>
             {isEditing ? (
-                <Button onClick={() => setEditRow(null)} disabled={loading} variant="secondary" size="sm">
+                <Button onClick={() => setEdit('')} disabled={loading} variant="secondary" size="sm">
                     <XCircle /> Cancel
                 </Button>
             ) : (

@@ -1,8 +1,8 @@
 import { Header } from './Header';
 import { Edit } from './Edit';
-import { DeleteButton } from './Delete';
-import { SaveButton } from './Save';
-
+import { View } from './View';
+import { DeleteButton } from './DeleteCancel';
+import { SaveButton } from './SaveEdit';
 
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -26,10 +26,10 @@ export const Manage = () => {
         isContinuous: number;
         arguments: string;
         automation: { name: string, parameters: string };
-    }
+    };
 
     const [jobs, setJobs] = useState<Job[]>([]);
-    const [editRow, setEditRow] = useState<string | null>(null); // Track the current job in edit mode
+    const [edit, setEdit] = useState('');
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
@@ -37,11 +37,9 @@ export const Manage = () => {
     useEffect(() => {
         const fetchJobsAndAutomations = async () => {
             try {
-                // Fetch all jobs
                 const jobsResponse = await axios.get('http://localhost:8080/read-job');
                 const jobsData = jobsResponse.data.data;
 
-                // Map over jobs and fetch the corresponding automation for each job
                 const jobs = await Promise.all(
                     jobsData.map(async (job: Job) => {
                         const automationsResponse = await axios.get(`http://localhost:8080/read-automation`, {
@@ -49,15 +47,12 @@ export const Manage = () => {
                         });
                         const automation = automationsResponse.data;
 
-                        // Return the job with the added automation name
                         return {
                             ...job,
-                            automation: { name: automation.data.name, parameters: automation.data.parameters }, // Adding automation name to job object
+                            automation: { name: automation.data.name, parameters: automation.data.parameters },
                         };
                     })
                 );
-
-                // Set the jobs state with jobs containing automation names
                 setJobs(jobs);
             } catch (err) {
                 console.error('Error fetching jobs or automations:', err);
@@ -68,7 +63,14 @@ export const Manage = () => {
         };
 
         fetchJobsAndAutomations();
-    }, [success]);
+    }, [edit, success]);
+
+    // Function to handle updates to a job's details
+    const handleJobUpdate = (jobName: string, updatedFields: Partial<Job>) => {
+        setJobs(prevJobs =>
+            prevJobs.map(job => job.name === jobName ? { ...job, ...updatedFields } : job)
+        );
+    };
 
     if (loading) {
         return (
@@ -114,15 +116,22 @@ export const Manage = () => {
                                     <Card.Header as="h5">{job.name}</Card.Header>
                                     <Card.Body>
                                         <Row>
-                                            {/* Left Side */}
+                                            {/* Edit and View page on Left Side */}
                                             <Col md={10}>
-                                                <Edit edit={editRow === job.name} job={job} setStates={[setSuccess, setError]} />
+                                                {edit === job.name ?
+                                                    <Edit
+                                                        job={job}
+                                                        handleJobUpdate={handleJobUpdate} // Pass handler to Edit
+                                                    />
+                                                :
+                                                    <View job={job} />
+                                                }
                                             </Col>
-                                            {/* Right Side */}
-                                            <Col md={2} className="border-start ps-3">
+                                            {/* Buttons on Right Side */}
+                                            <Col style={{ alignContent: 'center' }} md={2} className="border-start ps-3">
                                                 <Row>
-                                                    <SaveButton job_name={job.name} editRow={editRow} setEditRow={setEditRow} />
-                                                    <DeleteButton job_name={job.name} editRow={editRow} setEditRow={setEditRow} setStates={[setSuccess, setError]} />
+                                                    <SaveButton job={job} edit={edit} setStates={[setSuccess, setError, setEdit]} />
+                                                    <DeleteButton job_name={job.name} edit={edit} setStates={[setSuccess, setError, setEdit] } />
                                                 </Row>
                                             </Col>
                                         </Row>
