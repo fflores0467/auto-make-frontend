@@ -40,7 +40,6 @@ export const Schedule = () => {
         fetchAutomations();
     }, []);
 
-    
     type TimeUnit = {
         unit: string,
         time_str: string
@@ -66,7 +65,7 @@ export const Schedule = () => {
 
     return (
         <Container fluid>
-            <Card border="primary">
+            <Card border={"light"}>
                 <Card.Header>
                     <Header></Header>
                 </Card.Header>
@@ -120,7 +119,7 @@ export const Schedule = () => {
                                         type="number" 
                                         onChange={handleChange} 
                                         name='interval'
-                                        value={scheduleState.interval}
+                                        value={scheduleState.interval || ''}
                                     />
                                 </Form.Group>
                             </Col>
@@ -161,7 +160,7 @@ export const Schedule = () => {
                                         value={scheduleState.automation_id}
                                         disabled={loading || automations.length === 0} // Disable until automations load
                                     >
-                                        <option value={0}>{loading ? 'Loading Automations...' : 'Select Automation...'}</option> 
+                                        <option value={-1}>{loading ? 'Loading Automations...' : 'Select Automation...'}</option> 
                                         {automations.map((automation) => (
                                             <option key={automation.automation_id} value={automation.automation_id}>
                                                 {automation.name}
@@ -180,8 +179,8 @@ export const Schedule = () => {
                                         name='isContinuous' 
                                         value={scheduleState.isContinuous}
                                     >
-                                        <option value={0}>End Date Reached</option>
-                                        <option value={1}>Critiria Met</option>
+                                        <option value={0}>Critiria Met</option>
+                                        <option value={1}>End Date Reached</option>
                                     </Form.Select>
                                 </Form.Group>
                             </Col>

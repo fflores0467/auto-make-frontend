@@ -24,11 +24,11 @@ export const Automation = () => {
     const automationState = useSelector((state: RootState) => state.automation); 
     const automation_id = scheduleState.automation_id;
     
-    const [isLoading, setIsLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
     const [success, setSuccess] = useState('')
     const [error, setError] = useState('');
 
-    // settings from the database, stored in state for user input boxes
+    // settings schema from the database, stored in state for user input boxes
     const [settings, setSettings] = useState({
         message: "", 
         data: {
@@ -39,11 +39,11 @@ export const Automation = () => {
     });
 
     useEffect(() => {
-        if (automation_id && automation_id !== 0) {
+        if (automation_id && automation_id > 0) {
             setError("");
-            setIsLoading(true);
+            setLoading(true);
             axios.get(`http://localhost:8080/read-automation`, {
-                params: { id: automation_id },
+                params: { id: encodeURIComponent(automation_id) },
                 timeout: 5000,
             })
             .then((response) => {
@@ -67,10 +67,10 @@ export const Automation = () => {
                 console.error('Failed to fetch automation parameters:', err);
                 setError("An error occurred while fetching automation parameters.");
             })
-            .finally(() => setIsLoading(false));
+            .finally(() => setLoading(false));
         } else {
             setError('Please select an automation from the "Build Automation" Page.');
-            setIsLoading(false);
+            setLoading(false);
         }
     }, [automation_id]);
 
@@ -82,12 +82,11 @@ export const Automation = () => {
 
     // Handle form submission with validation
     const handleSubmit = async () => {
-        setError("")
+        setError("");
         const findMissingFields = (obj: Record<string, any>) =>
             Object.entries(obj)
-                .filter(([key, value]) => value === null || value === undefined || value === "")
+                .filter(([key, value]) => value === null || value === undefined || value === "" || value < 0)
                 .map(([key]) => key); // Return the keys of missing fields
-
         const missingAutomationFields = findMissingFields(automationState.parameters);
         const missingScheduleFields = findMissingFields(scheduleState);
 
@@ -120,13 +119,12 @@ export const Automation = () => {
         };
 
         try {
-            setIsLoading(true);
-            const response = await axios.post('http://localhost:8080/create-job', jobData, {
+            setLoading(true);
+            await axios.post('http://localhost:8080/create-job', jobData, {
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
-            console.log('Job created successfully:', response.data);
             setSuccess(`The Schedule "${scheduleState.name}" was Created. The Automation "${settings.data.name}" is Scheduled to Run.\n
                 Feel Free to Build a New Schedule!`);
             dispatch(clearScheduleName());
@@ -140,14 +138,14 @@ export const Automation = () => {
             console.error('An unknown error occurred:', (error as Error).message || error);
             setError('An unknown error occurred');
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
-    if (isLoading) {
+    if (loading) {
         return (
             <Container fluid>
-                <Card border='light'>
+                <Card border='warning'>
                     <Card.Header>
                         <Header />
                     </Card.Header>
@@ -163,17 +161,17 @@ export const Automation = () => {
         );
     }
 
-    const borderType = error ? 'danger' : success ? 'success' : 'primary';
+    const borderType = error ? 'danger' : success ? 'success' : 'secondary';
     return (
         <Container fluid>
-            <Card border={borderType}>
+            <Card border={'light'}>
                 <Card.Header>
                     <Header />
                 </Card.Header>
                 <Card.Body> 
                     {(error || success) && (
                         <Card.Body> 
-                            <Card border='secondary'>
+                            <Card border={borderType}>
                                 <Card.Body>
                                     <Card.Title>{error ? 'Unable to Proceed' : 'Success!'}</Card.Title>
                                     <Card.Text>{error || success}</Card.Text>
@@ -208,7 +206,7 @@ export const Automation = () => {
                             </Col>
 
                             {/* Right Side */}
-                            <Col md={6} className="border-start ps-3">
+                            <Col md={6} className="border-start ps-3" style={{alignContent: 'center'}}>
                                 <Card border="secondary">
                                     <Card.Header>{scheduleState.name || ""} Schedule Details</Card.Header>
                                     <Card.Body>
@@ -223,19 +221,21 @@ export const Automation = () => {
                                     </Card.Body>
                                 </Card>
                                 <div className="d-grid gap-2" style={{paddingTop: "1%"}}>
-                                    <Button onClick={handleSubmit} disabled={isLoading || success.length > 0} variant="primary" size="lg">
+                                    <Button onClick={handleSubmit} disabled={loading || success.length > 0} variant="primary" size="lg">
                                         Create Automation Schedule
                                     </Button>
-                                    {success.length > 0 && (
-                                        <p style={{ textAlign: 'right' }}>
-                                            *Schedule created successfully.{' '}
-                                            <LinkContainer to="/setup/schedule">
-                                                <Nav.Link >
-                                                    <p style={{ display: 'inline', textDecoration: 'underline', padding: 0, marginLeft: '5px' }}>Return to Build Scheduler</p>
-                                                </Nav.Link>
-                                            </LinkContainer>
-                                        </p>
-                                    )}
+                                    <p style={{ textAlign: 'right' }}>
+                                        <LinkContainer to="/setup/schedule">
+                                            <Nav.Link >
+                                                <span style={{ display: 'inline', textDecoration: 'underline', padding: 0, marginLeft: '5px' }}>Return to Build Scheduler</span>
+                                            </Nav.Link>
+                                        </LinkContainer>
+                                        <LinkContainer to="/manage">
+                                            <Nav.Link >
+                                                <span style={{ display: 'inline', textDecoration: 'underline', padding: 0, marginLeft: '5px' }}>Manage Automation Schedules</span>
+                                            </Nav.Link>
+                                        </LinkContainer>
+                                    </p>
                                 </div>
                             </Col>
                         </Row>
