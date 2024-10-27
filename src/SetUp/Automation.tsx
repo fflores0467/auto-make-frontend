@@ -206,7 +206,7 @@ export const Automation = () => {
                             </Col>
 
                             {/* Right Side */}
-                            <Col md={6} className="border-start ps-3">
+                            <Col md={6} className="border-start ps-3" style={{alignContent: 'center'}}>
                                 <Card border="secondary">
                                     <Card.Header>{scheduleState.name || ""} Schedule Details</Card.Header>
                                     <Card.Body>
@@ -224,16 +224,18 @@ export const Automation = () => {
                                     <Button onClick={handleSubmit} disabled={loading || success.length > 0} variant="primary" size="lg">
                                         Create Automation Schedule
                                     </Button>
-                                    {success.length > 0 && (
-                                        <p style={{ textAlign: 'right' }}>
-                                            *Schedule created successfully.{' '}
-                                            <LinkContainer to="/setup/schedule">
-                                                <Nav.Link >
-                                                    <span style={{ display: 'inline', textDecoration: 'underline', padding: 0, marginLeft: '5px' }}>Return to Build Scheduler</span>
-                                                </Nav.Link>
-                                            </LinkContainer>
-                                        </p>
-                                    )}
+                                    <p style={{ textAlign: 'right' }}>
+                                        <LinkContainer to="/setup/schedule">
+                                            <Nav.Link >
+                                                <span style={{ display: 'inline', textDecoration: 'underline', padding: 0, marginLeft: '5px' }}>Return to Build Scheduler</span>
+                                            </Nav.Link>
+                                        </LinkContainer>
+                                        <LinkContainer to="/manage">
+                                            <Nav.Link >
+                                                <span style={{ display: 'inline', textDecoration: 'underline', padding: 0, marginLeft: '5px' }}>Manage Automation Schedules</span>
+                                            </Nav.Link>
+                                        </LinkContainer>
+                                    </p>
                                 </div>
                             </Col>
                         </Row>

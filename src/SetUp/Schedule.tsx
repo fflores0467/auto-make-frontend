@@ -40,7 +40,6 @@ export const Schedule = () => {
         fetchAutomations();
     }, []);
 
-    
     type TimeUnit = {
         unit: string,
         time_str: string
@@ -120,7 +119,7 @@ export const Schedule = () => {
                                         type="number" 
                                         onChange={handleChange} 
                                         name='interval'
-                                        value={scheduleState.interval}
+                                        value={scheduleState.interval || ''}
                                     />
                                 </Form.Group>
                             </Col>
@@ -180,8 +179,8 @@ export const Schedule = () => {
                                         name='isContinuous' 
                                         value={scheduleState.isContinuous}
                                     >
-                                        <option value={0}>End Date Reached</option>
-                                        <option value={1}>Critiria Met</option>
+                                        <option value={0}>Critiria Met</option>
+                                        <option value={1}>End Date Reached</option>
                                     </Form.Select>
                                 </Form.Group>
                             </Col>

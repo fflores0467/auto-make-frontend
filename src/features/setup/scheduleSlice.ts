@@ -6,7 +6,7 @@ type ScheduleState = {
   name: string;
   start_date: string;
   end_date: string;
-  interval: number;
+  interval: number | string;
   time_unit: string;
   specific_time: string;
   automation_id: number;
@@ -28,7 +28,7 @@ const scheduleSlice = createSlice({
     time_unit: 'minutes',
     specific_time: ':00',
     automation_id: -1,
-    isContinuous: 0
+    isContinuous: 1
   } as ScheduleState,
   reducers: {
     // Reducer to set the schedule name
