@@ -22,7 +22,7 @@ export const Home = () => {
     }, []);
 
     return (
-        <Container fluid>
+        <Container fluid className='pt-3'>
             <Card border={'dark'}>
                 <Card.Body>
                     <Row className="justify-content-md-center">

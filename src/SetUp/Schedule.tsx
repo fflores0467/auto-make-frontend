@@ -64,14 +64,14 @@ export const Schedule = () => {
     };
 
     return (
-        <Container fluid>
-            <Card border={"light"}>
+        <Container fluid className='pt-3'>
+            <Card border={'dark'}>
                 <Card.Header>
                     <Header></Header>
                 </Card.Header>
                 <Card.Body>
                     <Form>
-                        <Row style={{paddingBottom: "1%"}}>
+                        <Row className="pb-3">
                             <Col md={12}>
                                 <Form.Group>
                                     <Form.Label>Schedule Name</Form.Label>
@@ -85,7 +85,7 @@ export const Schedule = () => {
                             </Col>
                         </Row>    
 
-                        <Row style={{paddingBottom: "1%"}}>
+                        <Row className="pb-3">
                             <Col md={6}>
                                 <Form.Group>
                                     <Form.Label>Start Date</Form.Label>
@@ -111,7 +111,7 @@ export const Schedule = () => {
                         </Row>  
 
                         <Form.Label>Run Schedule</Form.Label>
-                        <Row style={{paddingBottom: "1%"}}>
+                        <Row className="pb-3">
                             <Col md={2}>
                                 <Form.Group>
                                     <Form.Label>Every:</Form.Label>
