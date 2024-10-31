@@ -21,8 +21,8 @@ export const Features = () => {
                     alt="Setup page slide"
                 />
                 <Carousel.Caption>
-                    <h3 style={{color: '#000000'}}>Setup Page</h3>
-                    <p style={{color: '#333333'}}>Configure and customize your settings with ease.</p>
+                    <h3 style={{color: '#FFFFFF'}}>Setup Page</h3>
+                    <p style={{color: '#CCCCCC'}}>Configure and customize your settings with ease.</p>
                 </Carousel.Caption>
             </Carousel.Item>
             
