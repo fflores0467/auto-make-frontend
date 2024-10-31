@@ -14,6 +14,8 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
 
+const baseUrl = process.env.REACT_APP_API_BASE_URL;
+
 export const Schedule = () => {
     const dispatch = useDispatch<AppDispatch>(); 
     const scheduleState = useSelector((state: RootState) => state.schedule); 
@@ -26,7 +28,7 @@ export const Schedule = () => {
     useEffect(() => {
         const fetchAutomations = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/read-automation'); 
+                const response = await axios.get(`${baseUrl}/read-automation`); 
                 setAutomations(response.data.data); 
                 setError('');
             } catch (err) {

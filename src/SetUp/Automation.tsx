@@ -18,6 +18,8 @@ import Nav from 'react-bootstrap/Nav';
 import { LinkContainer } from 'react-router-bootstrap';
 import Button from 'react-bootstrap/Button';
 
+const baseUrl = process.env.REACT_APP_API_BASE_URL;
+
 export const Automation = () => {
     const dispatch = useDispatch<AppDispatch>(); 
     const scheduleState = useSelector((state: RootState) => state.schedule);
@@ -42,7 +44,7 @@ export const Automation = () => {
         if (automation_id && automation_id > 0) {
             setError("");
             setLoading(true);
-            axios.get(`http://localhost:8080/read-automation`, {
+            axios.get(`${baseUrl}/read-automation`, {
                 params: { id: encodeURIComponent(automation_id) },
                 timeout: 5000,
             })
@@ -120,7 +122,7 @@ export const Automation = () => {
 
         try {
             setLoading(true);
-            await axios.post('http://localhost:8080/create-job', jobData, {
+            await axios.post(`${baseUrl}/create-job`, jobData, {
                 headers: {
                     'Content-Type': 'application/json',
                 },

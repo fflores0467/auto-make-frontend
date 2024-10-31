@@ -17,6 +17,8 @@ type Job = {
     automation: { name: string, parameters: string };
 };
 
+const baseUrl = process.env.REACT_APP_API_BASE_URL;
+
 export const SaveButton: React.FC<{ job: Job, edit: string | null, setStates: Dispatch<SetStateAction<string>>[] }> = ({ job, edit, setStates }) => {
     const job_name = job.name;
 
@@ -71,7 +73,7 @@ export const SaveButton: React.FC<{ job: Job, edit: string | null, setStates: Di
                 return;
             }
 
-            await axios.put(`http://localhost:8080/update-job`, updatePayload, {
+            await axios.put(`${baseUrl}/update-job`, updatePayload, {
                 headers: {
                     'Content-Type': 'application/json',
                 },

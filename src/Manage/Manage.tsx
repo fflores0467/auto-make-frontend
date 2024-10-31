@@ -13,6 +13,8 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Spinner from 'react-bootstrap/Spinner';
 
+const baseUrl = process.env.REACT_APP_API_BASE_URL;
+
 export const Manage = () => {
 
     type Job = {
@@ -37,12 +39,12 @@ export const Manage = () => {
     useEffect(() => {
         const fetchJobsAndAutomations = async () => {
             try {
-                const jobsResponse = await axios.get('http://localhost:8080/read-job');
+                const jobsResponse = await axios.get(`${baseUrl}/read-job`);
                 const jobsData = jobsResponse.data.data;
 
                 const jobs = await Promise.all(
                     jobsData.map(async (job: Job) => {
-                        const automationsResponse = await axios.get(`http://localhost:8080/read-automation`, {
+                        const automationsResponse = await axios.get(`${baseUrl}/read-automation`, {
                             params: { id: encodeURIComponent(job.automation_id) },
                         });
                         const automation = automationsResponse.data;

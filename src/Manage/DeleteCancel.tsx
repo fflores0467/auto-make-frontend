@@ -3,6 +3,8 @@ import axios from 'axios';
 import Button from 'react-bootstrap/Button';
 import { Trash, XCircle } from 'react-bootstrap-icons';
 
+const baseUrl = process.env.REACT_APP_API_BASE_URL;
+
 export const DeleteButton: React.FC<{ job_name: string, edit: string | null, setStates: Dispatch<SetStateAction<string>>[] }> = ({ job_name, edit, setStates }) => {
     const [setSuccess, setError, setEdit] = setStates;
     const [loading, setLoading] = useState(false);
@@ -10,7 +12,7 @@ export const DeleteButton: React.FC<{ job_name: string, edit: string | null, set
     const handleDelete = async () => {
         try {
             setLoading(true);
-            await axios.delete(`http://localhost:8080/delete-job`, {
+            await axios.delete(`${baseUrl}/delete-job`, {
                 params: { name: encodeURIComponent(job_name) },
             });
             setSuccess(`The Automation Schedule "${job_name}" was Deleted.\nFeel Free to Set Up a New Automation Schedule!`);

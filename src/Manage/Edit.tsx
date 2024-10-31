@@ -18,6 +18,8 @@ type Job = {
     automation: { name: string, parameters: string };
 };
 
+const baseUrl = process.env.REACT_APP_API_BASE_URL;
+
 export const Edit: React.FC<{
     job: Job;
     handleJobUpdate: (jobName: string, updatedFields: Partial<Job>) => void;
@@ -31,7 +33,7 @@ export const Edit: React.FC<{
     useEffect(() => {
         const fetchAutomations = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/read-automation');
+                const response = await axios.get(`${baseUrl}/read-automation`);
                 setAutomations(response.data.data);
                 setError('');
             } catch (err) {
