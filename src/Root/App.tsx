@@ -1,4 +1,4 @@
-import '../public/css/border.css';
+import '../assets/css/border.css';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import { Header } from './Header';
 import { Home } from '../Home/Home';
@@ -12,7 +12,7 @@ const App = () => {
     <div className="app">
       <Header></Header>
       <Routes>
-        <Route path='/' element={<Navigate to="/manage" />}></Route>
+        <Route path='/' element={<Navigate to="/home" />}></Route>
         <Route path='/home' element={<Home/>}></Route>
         <Route path='/setup' element={<Navigate to="/setup/schedule" />}></Route>
         <Route path='/setup/schedule' element={<Schedule/>}></Route>
@@ -20,7 +20,6 @@ const App = () => {
         <Route path='/setup/automation' element={<Automation/>}></Route>
         <Route path='/manage' element={<Manage/>}></Route>
       </Routes>
-      <br/>
     </div>
   )
 }
