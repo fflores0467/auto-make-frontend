@@ -145,7 +145,7 @@ export const Automation = () => {
     if (loading) {
         return (
             <Container fluid>
-                <Card border='warning'>
+                <Card>
                     <Card.Header>
                         <Header />
                     </Card.Header>
@@ -163,8 +163,8 @@ export const Automation = () => {
 
     const borderType = error ? 'danger' : success ? 'success' : 'secondary';
     return (
-        <Container fluid>
-            <Card border={'light'}>
+        <Container fluid className='pt-3'>
+            <Card border={'dark'}>
                 <Card.Header>
                     <Header />
                 </Card.Header>
@@ -188,7 +188,7 @@ export const Automation = () => {
                             {/* Left Side */}
                             <Col md={6}>
                                 {Object.entries(settings.data.parameters).map(([field, type], index) => (
-                                    <Row key={index} style={{ paddingBottom: '1%' }}>
+                                    <Row key={index} className="pb-3">
                                         <Col>
                                             <Form.Group>
                                                 <Form.Label style={{textTransform: 'capitalize'}}>{field}</Form.Label>
@@ -220,7 +220,7 @@ export const Automation = () => {
                                         </Card.Text>
                                     </Card.Body>
                                 </Card>
-                                <div className="d-grid gap-2" style={{paddingTop: "1%"}}>
+                                <div className="d-grid gap-2 pt-3">
                                     <Button onClick={handleSubmit} disabled={loading || success.length > 0} variant="primary" size="lg">
                                         Create Automation Schedule
                                     </Button>

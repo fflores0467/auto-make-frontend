@@ -1,0 +1,28 @@
+.fade-animation {
+    opacity: 0;
+    animation: fadeInOut 2s ease-in-out infinite;
+}
+
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 2s ease-in forwards; /* Ensure it stays visible */
+}
+
+/* Fade-in and fade-out animation */
+@keyframes fadeInOut {
+    0%, 100% {
+        opacity: 0; /* Start and end as invisible */
+    }
+    25%, 75% {
+        opacity: 1; /* Fully visible in the middle */
+    }
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0; /* Start as invisible */
+    }
+    100% {
+        opacity: 1; /* Fully visible at the end */
+    }
+}

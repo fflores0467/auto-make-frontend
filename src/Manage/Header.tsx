@@ -4,7 +4,7 @@ import Nav from 'react-bootstrap/Nav';
 
 export const Header = () => {
     return(
-        <Navbar expand="lg" className="bg-body-tertiary">
+        <Navbar expand="lg">
             <Container fluid>
                 <Nav className="me-auto">
                     <Nav.Link className='nav-link active'>

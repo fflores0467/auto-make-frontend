@@ -75,7 +75,7 @@ export const Manage = () => {
     if (loading) {
         return (
             <Container fluid>
-                <Card border='warning'>
+                <Card>
                     <Card.Header>
                         <Header />
                     </Card.Header>
@@ -93,8 +93,8 @@ export const Manage = () => {
 
     const borderType = error ? 'danger' : success ? 'success' : 'secondary';
     return (
-        <Container fluid>
-            <Card border={'light'}>
+        <Container fluid className='pt-3'>
+            <Card border={'dark'}>
                 <Card.Header>
                     <Header />
                 </Card.Header>
