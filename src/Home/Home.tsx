@@ -6,7 +6,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import '../assets/css/home.css';
 
-const words = ['Welcome...', 'To...', 'AutoMake'];
+const words = ['Welcome...', 'AutoMake'];
 
 export const Home = () => {
     const [intro, setIntro] = useState('');
