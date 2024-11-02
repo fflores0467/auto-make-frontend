@@ -50,5 +50,6 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
-  }
+  },
+  "homepage": "https://fflores0467.github.io/auto-make-frontend/"
 }
