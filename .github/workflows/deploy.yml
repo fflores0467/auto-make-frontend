@@ -4,7 +4,10 @@ name: Deploy to GitHub Pages
 
 # Controls when the workflow will run
 on:
-  # Triggers the workflow on pull request events but only for the "main" branch
+  # Trigger on push to the "main" branch
+  push:
+    branches: [ "main" ]
+  # Trigger on pull request to the "main" branch
   pull_request:
     branches: [ "main" ]
 
