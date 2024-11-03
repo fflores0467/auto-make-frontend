@@ -36,6 +36,10 @@ jobs:
       - name: Build project
         run: npm run build
 
+      # Copy index.html to create 404.html for routing on GitHub Pages
+      - name: Create 404.html for GitHub Pages
+        run: cp ./build/index.html ./build/404.html
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
