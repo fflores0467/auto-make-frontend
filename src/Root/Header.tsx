@@ -23,6 +23,9 @@ export const Header = () => {
             <LinkContainer to="/manage">
               <Nav.Link className={currentPage.startsWith('/manage') ? 'nav-link active' : 'nav-link'}>Manage</Nav.Link>
             </LinkContainer>
+            <LinkContainer to="/notification">
+              <Nav.Link className={currentPage.startsWith('/notification') ? 'nav-link active' : 'nav-link'}>Notification</Nav.Link>
+            </LinkContainer>
           </Nav>
         </Navbar.Collapse>
       </Container>

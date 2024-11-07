@@ -6,6 +6,7 @@ import { Manage } from '../Manage/Manage';
 import { Schedule } from '../SetUp/Schedule';
 import { Automation } from '../SetUp/Automation';
 import { BackRoom } from '../SetUp/BackRoom';
+import { Notification } from '../Notification/Notification';
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
         <Route path='/setup/backroom' element={<BackRoom/>}></Route>
         <Route path='/setup/automation' element={<Automation/>}></Route>
         <Route path='/manage' element={<Manage/>}></Route>
+        <Route path='/notification' element={<Notification/>}></Route>
       </Routes>
     </div>
   )
