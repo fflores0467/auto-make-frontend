@@ -1,5 +1,5 @@
 import { Loading } from '../components/Loading'
-import { Header } from './Header';
+import { Header } from '../components/BasicHeader'
 import { Edit } from './Edit';
 import { View } from './View';
 import { DeleteButton } from './DeleteCancel';
@@ -76,7 +76,7 @@ export const Manage = () => {
 
     if (loading) {
         return (
-            <Loading Header={<Header/>}></Loading>
+            <Loading Header={<Header title={"Manage Automation Schedules"}/>}></Loading>
         );
     }
 
@@ -85,7 +85,7 @@ export const Manage = () => {
         <Container fluid className='pt-3'>
             <Card border={'dark'}>
                 <Card.Header>
-                    <Header />
+                    <Header title={"Manage Automation Schedules"} />
                 </Card.Header>
                 <Card.Body>
                     {(error || success) && (
