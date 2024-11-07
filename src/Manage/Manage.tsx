@@ -1,3 +1,4 @@
+import { Loading } from '../components/Loading'
 import { Header } from './Header';
 import { Edit } from './Edit';
 import { View } from './View';
@@ -11,7 +12,6 @@ import Card from 'react-bootstrap/Card';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Spinner from 'react-bootstrap/Spinner';
 
 const baseUrl = process.env.REACT_APP_API_BASE_URL;
 
@@ -76,20 +76,7 @@ export const Manage = () => {
 
     if (loading) {
         return (
-            <Container fluid>
-                <Card>
-                    <Card.Header>
-                        <Header />
-                    </Card.Header>
-                    <Card.Body>
-                        <Row className="justify-content-md-center">
-                            <Spinner animation="border" role="status">
-                                <span className="visually-hidden">Loading...</span>
-                            </Spinner>
-                        </Row>
-                    </Card.Body>
-                </Card>
-            </Container>
+            <Loading Header={<Header/>}></Loading>
         );
     }
 

@@ -1,3 +1,4 @@
+import { Loading } from '../components/Loading'
 import { Header } from "./Header";
 
 import axios from 'axios';
@@ -13,7 +14,6 @@ import Container from 'react-bootstrap/Container';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Spinner from 'react-bootstrap/Spinner';
 import Nav from 'react-bootstrap/Nav';
 import { LinkContainer } from 'react-router-bootstrap';
 import Button from 'react-bootstrap/Button';
@@ -146,20 +146,7 @@ export const Automation = () => {
 
     if (loading) {
         return (
-            <Container fluid>
-                <Card>
-                    <Card.Header>
-                        <Header />
-                    </Card.Header>
-                    <Card.Body> 
-                        <Row className="justify-content-md-center">
-                            <Spinner animation="border" role="status">
-                                <span className="visually-hidden">Loading...</span>
-                            </Spinner>
-                        </Row>
-                    </Card.Body>
-                </Card>
-            </Container>
+            <Loading Header={<Header/>}></Loading>
         );
     }
 
