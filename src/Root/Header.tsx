@@ -1,3 +1,6 @@
+import { useSelector } from 'react-redux';
+import type { RootState } from '../store';
+
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
@@ -6,6 +9,7 @@ import { useLocation } from 'react-router-dom';
 
 export const Header = () => {
   const currentPage = useLocation().pathname;
+  const user = useSelector((state: RootState) => state.user);
 
   return (
     <Navbar expand="lg" className="bg-body-tertiary">
@@ -26,6 +30,12 @@ export const Header = () => {
             <LinkContainer to="/notification">
               <Nav.Link className={currentPage.startsWith('/notification') ? 'nav-link active' : 'nav-link'}>Notification</Nav.Link>
             </LinkContainer>
+          </Nav>
+          {/* Add User Info to the Right */}
+          <Nav className="ms-auto">
+            <Nav.Item className="nav-link">
+              {user.id > 0 ? `Logged in as: ${user.username}` : 'Not logged in'}
+            </Nav.Item>
           </Nav>
         </Navbar.Collapse>
       </Container>

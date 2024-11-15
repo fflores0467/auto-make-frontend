@@ -10,7 +10,7 @@ type Job = {
     time_unit: string;
     specific_time: string;
     automation_id: number;
-    isContinuous: number;
+    continuous: number;
     arguments: string;
     automation: { name: string, parameters: string };
 };
@@ -23,7 +23,7 @@ export const View: React.FC<{ job: Job }> = ({ job }) => {
                 <strong>To:</strong> {job.end_date} | <strong>Interval:</strong> {job.interval} |{' '}
                 <strong>Time Unit:</strong> {job.time_unit} | <strong>Specific Time:</strong>{' '}
                 {job.specific_time} | <strong>Continuous:</strong>{' '}
-                {job.isContinuous ? 'true' : 'false'}
+                {job.continuous ? 'true' : 'false'}
             </Card.Text>
             <Card.Text>
                 <strong>Arguments:</strong>{' '}

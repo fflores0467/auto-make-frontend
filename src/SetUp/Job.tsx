@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState, AppDispatch } from '../store'
-import { setScheduleState } from '../features/setup/scheduleSlice'
+import { setJobState } from '../features/setup/jobSlice'
 import { clearAutomationState } from '../features/setup/automationSlice'
 
 import Form from 'react-bootstrap/Form';
@@ -16,11 +16,12 @@ import Card from 'react-bootstrap/Card';
 
 const baseUrl = process.env.REACT_APP_API_BASE_URL;
 
-export const Schedule = () => {
-    const dispatch = useDispatch<AppDispatch>(); 
-    const scheduleState = useSelector((state: RootState) => state.schedule); 
+export const Job = () => {
+    const dispatch = useDispatch<AppDispatch>();
+    const jobState = useSelector((state: RootState) => state.job);
+    const user = useSelector((state: RootState) => state.user);
 
-    const [automations, setAutomations] = useState<{ automation_id: number, name: string }[]>([]); // For the dropdown
+    const [automations, setAutomations] = useState<{ id: number, name: string }[]>([]); // For the dropdown
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -28,8 +29,8 @@ export const Schedule = () => {
     useEffect(() => {
         const fetchAutomations = async () => {
             try {
-                const response = await axios.get(`${baseUrl}/read-automation`); 
-                setAutomations(response.data.data); 
+                const response = await axios.get(`${baseUrl}/read-automation`);
+                setAutomations(response.data.data);
                 setError('');
             } catch (err) {
                 console.error('Error fetching automations:', err);
@@ -38,30 +39,31 @@ export const Schedule = () => {
                 setLoading(false);
             }
         };
-
+        dispatch(setJobState({ user_id: user.id }))
         fetchAutomations();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     type TimeUnit = {
         unit: string,
         time_str: string
     }
-    const time_units: TimeUnit[] = [{unit: "minutes", time_str: ":SS"}, {unit: "hours", time_str: "MM:SS || :MM"}, {unit: "days", time_str: "HH:MM:SS || HH:MM"}];
+    const time_units: TimeUnit[] = [{ unit: "minutes", time_str: ":SS" }, { unit: "hours", time_str: "MM:SS || :MM" }, { unit: "days", time_str: "HH:MM:SS || HH:MM" }];
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
 
-        if (name === 'automation_id'){
+        if (name === 'automation_id') {
             dispatch(clearAutomationState());
         }
 
         // Handle numeric inputs (convert string to number)
-        if (name === 'interval' || name === 'automation_id' || name === 'isContinuous') {
-            dispatch(setScheduleState({ [name]: parseInt(value, 10) }));
+        if (name === 'interval' || name === 'automation_id' || name === 'continuous') {
+            dispatch(setJobState({ [name]: parseInt(value, 10) }));
         }
         // Handle string inputs
         else {
-            dispatch(setScheduleState({ [name]: value }));
+            dispatch(setJobState({ [name]: value }));
         }
     };
 
@@ -77,51 +79,51 @@ export const Schedule = () => {
                             <Col md={12}>
                                 <Form.Group>
                                     <Form.Label>Schedule Name</Form.Label>
-                                    <Form.Control 
+                                    <Form.Control
                                         placeholder='Enter Schedule Name'
-                                        onChange={handleChange} 
+                                        onChange={handleChange}
                                         name='name'
-                                        value={scheduleState.name}
+                                        value={jobState.name}
                                     />
                                 </Form.Group>
                             </Col>
-                        </Row>    
+                        </Row>
 
                         <Row className="pb-3">
                             <Col md={6}>
                                 <Form.Group>
                                     <Form.Label>Start Date</Form.Label>
-                                    <Form.Control 
-                                        type="date" 
-                                        onChange={handleChange} 
+                                    <Form.Control
+                                        type="date"
+                                        onChange={handleChange}
                                         name='start_date'
-                                        value={scheduleState.start_date}
+                                        value={jobState.start_date}
                                     />
                                 </Form.Group>
                             </Col>
                             <Col md={6}>
                                 <Form.Group>
                                     <Form.Label>End Date</Form.Label>
-                                    <Form.Control 
-                                        type="date" 
-                                        onChange={handleChange} 
+                                    <Form.Control
+                                        type="date"
+                                        onChange={handleChange}
                                         name='end_date'
-                                        value={scheduleState.end_date}
+                                        value={jobState.end_date}
                                     />
                                 </Form.Group>
                             </Col>
-                        </Row>  
+                        </Row>
 
                         <Form.Label>Run Schedule</Form.Label>
                         <Row className="pb-3">
                             <Col md={2}>
                                 <Form.Group>
                                     <Form.Label>Every:</Form.Label>
-                                    <Form.Control 
-                                        type="number" 
-                                        onChange={handleChange} 
+                                    <Form.Control
+                                        type="number"
+                                        onChange={handleChange}
                                         name='interval'
-                                        value={scheduleState.interval || ''}
+                                        value={jobState.interval || ''}
                                     />
                                 </Form.Group>
                             </Col>
@@ -129,14 +131,14 @@ export const Schedule = () => {
                                 <Form.Group>
                                     <Form.Label>Time Unit:</Form.Label>
                                     <Form.Select
-                                        style={{textTransform: 'capitalize'}} 
-                                        aria-label="Default select example" 
+                                        style={{ textTransform: 'capitalize' }}
+                                        aria-label="Default select example"
                                         name='time_unit'
-                                        value={scheduleState.time_unit}
-                                        onChange={handleChange} 
+                                        value={jobState.time_unit}
+                                        onChange={handleChange}
                                     >
                                         {time_units.map((x) => (
-                                            <option key={x.unit} value={x.unit}>{x.unit}</option> 
+                                            <option key={x.unit} value={x.unit}>{x.unit}</option>
                                         ))}
                                     </Form.Select>
                                 </Form.Group>
@@ -144,27 +146,27 @@ export const Schedule = () => {
                             <Col md={2}>
                                 <Form.Group>
                                     <Form.Label>At:</Form.Label>
-                                    <Form.Control 
-                                        placeholder={scheduleState.specific_time}
-                                        onChange={handleChange} 
+                                    <Form.Control
+                                        placeholder={jobState.specific_time}
+                                        onChange={handleChange}
                                         name='specific_time'
-                                        value={scheduleState.specific_time}
+                                        value={jobState.specific_time}
                                     />
                                 </Form.Group>
                             </Col>
                             <Col md={4}>
                                 <Form.Group>
                                     <Form.Label>Do:</Form.Label>
-                                    <Form.Select 
-                                        aria-label="Default select example" 
-                                        onChange={handleChange} 
-                                        name='automation_id' 
-                                        value={scheduleState.automation_id}
+                                    <Form.Select
+                                        aria-label="Default select example"
+                                        onChange={handleChange}
+                                        name='automation_id'
+                                        value={jobState.automation_id}
                                         disabled={loading || automations.length === 0} // Disable until automations load
                                     >
-                                        <option value={-1}>{loading ? 'Loading Automations...' : 'Select Automation...'}</option> 
+                                        <option value={-1}>{loading ? 'Loading Automations...' : 'Select Automation...'}</option>
                                         {automations.map((automation) => (
-                                            <option key={automation.automation_id} value={automation.automation_id}>
+                                            <option key={automation.id} value={automation.id}>
                                                 {automation.name}
                                             </option>
                                         ))}
@@ -175,18 +177,18 @@ export const Schedule = () => {
                             <Col md={2}>
                                 <Form.Group>
                                     <Form.Label>Until:</Form.Label>
-                                    <Form.Select 
-                                        aria-label="Default select example" 
-                                        onChange={handleChange} 
-                                        name='isContinuous' 
-                                        value={scheduleState.isContinuous}
+                                    <Form.Select
+                                        aria-label="Default select example"
+                                        onChange={handleChange}
+                                        name='continuous'
+                                        value={jobState.continuous}
                                     >
-                                        <option value={0}>Critiria Met</option>
+                                        <option value={0}>Criteria Met</option>
                                         <option value={1}>End Date Reached</option>
                                     </Form.Select>
                                 </Form.Group>
                             </Col>
-                        </Row>              
+                        </Row>
                     </Form>
                 </Card.Body>
             </Card>

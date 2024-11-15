@@ -1,7 +1,7 @@
 # Verbage
-Schedule - Details that entail a name, start date, end date, and cron details
+Schedule - Details that entail a name, start date, end date, timings, and an automation to run.
 Automation - Pre-made automation hosted on Python which will include dynamic parameters, based off the automation.
-Autotion Schedule (Job) - The creation of a schedule which will run an automation based off the cron. This is known as a Job.
+Automation Schedule (Job) - The creation of a schedule which will run an automation based off the timings. This is known as a Job.
 
 # Getting Started with Create React App
 

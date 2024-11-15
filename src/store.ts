@@ -1,13 +1,14 @@
 // src/store.ts
 import { configureStore } from '@reduxjs/toolkit'
-import scheduleReducer from './features/setup/scheduleSlice' // Import the schedule slice
-import automationReducer from './features/setup/automationSlice' // Import the schedule slice
-
+import jobReducer from './features/setup/jobSlice' // Import the job slice
+import automationReducer from './features/setup/automationSlice'
+import userReducer from './features/login/userSlice'
 
 export const store = configureStore({
   reducer: {
-    schedule: scheduleReducer, // Add the schedule reducer to the store
+    job: jobReducer, // Add the job reducer to the store
     automation: automationReducer,
+    user: userReducer,
   }
 })
 

@@ -7,6 +7,8 @@ import { SaveButton } from './SaveEdit';
 
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import type { RootState } from '../store';
 
 import Card from 'react-bootstrap/Card';
 import Container from 'react-bootstrap/Container';
@@ -16,8 +18,10 @@ import Col from 'react-bootstrap/Col';
 const baseUrl = process.env.REACT_APP_API_BASE_URL;
 
 export const Manage = () => {
+    const user = useSelector((state: RootState) => state.user);
 
     type Job = {
+        id: number;
         name: string;
         start_date: string;
         end_date: string;
@@ -25,14 +29,15 @@ export const Manage = () => {
         time_unit: string;
         specific_time: string;
         automation_id: number;
-        isContinuous: number;
+        user_id: number;
+        continuous: number;
         arguments: string;
         automation: { name: string, parameters: string };
     };
 
     const [jobs, setJobs] = useState<Job[]>([]);
-    const [edit, setEdit] = useState('');
-    const [success, setSuccess] = useState('');
+    const [edit, setEdit] = useState<number>(0);
+    const [success, setSuccess] = useState<string>('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
 
@@ -41,7 +46,6 @@ export const Manage = () => {
             try {
                 const jobsResponse = await axios.get(`${baseUrl}/read-job`);
                 const jobsData = jobsResponse.data.data;
-
                 const jobs = await Promise.all(
                     jobsData.map(async (job: Job) => {
                         const automationsResponse = await axios.get(`${baseUrl}/read-automation`, {
@@ -51,6 +55,7 @@ export const Manage = () => {
 
                         return {
                             ...job,
+                            user_id: user.id,
                             automation: { name: automation.data.name, parameters: automation.data.parameters },
                         };
                     })
@@ -65,18 +70,18 @@ export const Manage = () => {
         };
 
         fetchJobsAndAutomations();
-    }, [edit, success]);
+    }, [edit, success, user.id]);
 
     // Function to handle updates to a job's details
-    const handleJobUpdate = (jobName: string, updatedFields: Partial<Job>) => {
+    const handleJobUpdate = (job_id: number, updatedFields: Partial<Job>) => {
         setJobs(prevJobs =>
-            prevJobs.map(job => job.name === jobName ? { ...job, ...updatedFields } : job)
+            prevJobs.map(job => job.id === job_id ? { ...job, ...updatedFields } : job)
         );
     };
 
     if (loading) {
         return (
-            <Loading Header={<Header title={"Manage Automation Schedules"}/>}></Loading>
+            <Loading Header={<Header title={"Manage Automation Schedules"} />}></Loading>
         );
     }
 
@@ -100,19 +105,19 @@ export const Manage = () => {
                     )}
                     {jobs.length > 0 ? (
                         jobs.map((job) => (
-                            <React.Fragment key={job.name}>
+                            <React.Fragment key={job.id}>
                                 <Card border='secondary'>
                                     <Card.Header as="h5">{job.name}</Card.Header>
                                     <Card.Body>
                                         <Row>
                                             {/* Edit and View page on Left Side */}
                                             <Col md={10}>
-                                                {edit === job.name ?
+                                                {edit === job.id ?
                                                     <Edit
                                                         job={job}
                                                         handleJobUpdate={handleJobUpdate} // Pass handler to Edit
                                                     />
-                                                :
+                                                    :
                                                     <View job={job} />
                                                 }
                                             </Col>
@@ -120,7 +125,7 @@ export const Manage = () => {
                                             <Col style={{ alignContent: 'center' }} md={2} className="border-start ps-3">
                                                 <Row>
                                                     <SaveButton job={job} edit={edit} setStates={[setSuccess, setError, setEdit]} />
-                                                    <DeleteButton job_name={job.name} edit={edit} setStates={[setSuccess, setError, setEdit] } />
+                                                    <DeleteButton job_id={job.id} edit={edit} setStates={[setSuccess, setError, setEdit]} />
                                                 </Row>
                                             </Col>
                                         </Row>

@@ -6,6 +6,7 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 type Job = {
+    id: number;
     name: string;
     start_date: string;
     end_date: string;
@@ -13,7 +14,7 @@ type Job = {
     time_unit: string;
     specific_time: string;
     automation_id: number;
-    isContinuous: number;
+    continuous: number;
     arguments: string;
     automation: { name: string, parameters: string };
 };
@@ -22,13 +23,13 @@ const baseUrl = process.env.REACT_APP_API_BASE_URL;
 
 export const Edit: React.FC<{
     job: Job;
-    handleJobUpdate: (jobName: string, updatedFields: Partial<Job>) => void;
+    handleJobUpdate: (job_id: number, updatedFields: Partial<Job>) => void;
 }> = ({ job, handleJobUpdate }) => {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [automations, setAutomations] = useState<{ automation_id: number; name: string; parameters: string }[]>([]);
-  
+    const [automations, setAutomations] = useState<{ id: number; name: string; parameters: string }[]>([]);
+
     // Fetch all automations (field name/field type) once when component mounts
     useEffect(() => {
         const fetchAutomations = async () => {
@@ -49,7 +50,7 @@ export const Edit: React.FC<{
     // Function to handle job field updates, including automation_id
     const handleFieldChange = async (name: keyof Job, value: string | number) => {
         if (name === 'automation_id') {
-            const selectedAutomation = automations.find((automation) => automation.automation_id === value);
+            const selectedAutomation = automations.find((automation) => automation.id === value);
 
             if (selectedAutomation) {
                 const parsedArguments = JSON.stringify(
@@ -58,27 +59,27 @@ export const Edit: React.FC<{
                         return acc;
                     }, {} as Record<string, string>)
                 )
-                handleJobUpdate(job.name, {
+                handleJobUpdate(job.id, {
                     [name]: typeof value === 'string' ? parseInt(value, 10) : value,
                     arguments: parsedArguments,
                     automation: { name: selectedAutomation.name, parameters: selectedAutomation.parameters },
                 });
             }
         } else {
-            handleJobUpdate(job.name, { [name]: value });
+            handleJobUpdate(job.id, { [name]: value });
         }
     };
 
     const handleArgumentChange = (key: string, value: string) => {
         const updatedArguments = { ...JSON.parse(job.arguments), [key]: value };
-        handleJobUpdate(job.name, { arguments: JSON.stringify(updatedArguments) });
+        handleJobUpdate(job.id, { arguments: JSON.stringify(updatedArguments) });
     };
 
     type TimeUnit = {
         unit: string,
         time_str: string
     }
-    const time_units: TimeUnit[] = [{unit: "minutes", time_str: ":SS"}, {unit: "hours", time_str: "MM:SS || :MM"}, {unit: "days", time_str: "HH:MM:SS || HH:MM"}];
+    const time_units: TimeUnit[] = [{ unit: "minutes", time_str: ":SS" }, { unit: "hours", time_str: "MM:SS || :MM" }, { unit: "days", time_str: "HH:MM:SS || HH:MM" }];
 
     return (
         <Card.Text as="div">
@@ -92,9 +93,10 @@ export const Edit: React.FC<{
                                 value={job.automation_id}
                                 onChange={(e) => handleFieldChange("automation_id", parseInt(e.target.value))}
                             >
+                                {loading && <option>Loading...</option>}
                                 {automations.map((automation) => (
-                                    <option key={automation.automation_id} value={automation.automation_id}>
-                                        {loading ? 'Loading...' : automation.name}
+                                    <option key={automation.id} value={automation.id}>
+                                        {automation.name}
                                     </option>
                                 ))}
                             </Form.Select>
@@ -139,14 +141,14 @@ export const Edit: React.FC<{
                         <Form.Group>
                             <Form.Label><strong>Time Unit:</strong></Form.Label>
                             <Form.Select
-                                style={{textTransform: 'capitalize'}} 
-                                aria-label="Default select example" 
+                                style={{ textTransform: 'capitalize' }}
+                                aria-label="Default select example"
                                 name='time_unit'
                                 value={job.time_unit}
                                 onChange={(e) => handleFieldChange("time_unit", e.target.value)}
-                                >
+                            >
                                 {time_units.map((x) => (
-                                    <option key={x.unit} value={x.unit}>{x.unit}</option> 
+                                    <option key={x.unit} value={x.unit}>{x.unit}</option>
                                 ))}
                             </Form.Select>
                         </Form.Group>
@@ -166,9 +168,9 @@ export const Edit: React.FC<{
                             <Form.Label><strong>Continuous:</strong></Form.Label>
                             <Form.Check
                                 type="switch"
-                                name="isContinuous"
-                                checked={!!job.isContinuous}
-                                onChange={(e) => handleFieldChange("isContinuous", e.target.checked ? 1 : 0)}
+                                name="continuous"
+                                checked={!!job.continuous}
+                                onChange={(e) => handleFieldChange("continuous", e.target.checked ? 1 : 0)}
                             />
                         </Form.Group>
                     </Col>

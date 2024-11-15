@@ -5,6 +5,7 @@ import Button from 'react-bootstrap/Button';
 import { PencilSquare, Save } from 'react-bootstrap-icons';
 
 type Job = {
+    id: number;
     name: string;
     start_date: string;
     end_date: string;
@@ -12,16 +13,20 @@ type Job = {
     time_unit: string;
     specific_time: string;
     automation_id: number;
-    isContinuous: number;
+    user_id: number;
+    continuous: number;
     arguments: string;
     automation: { name: string, parameters: string };
 };
 
 const baseUrl = process.env.REACT_APP_API_BASE_URL;
 
-export const SaveButton: React.FC<{ job: Job, edit: string | null, setStates: Dispatch<SetStateAction<string>>[] }> = ({ job, edit, setStates }) => {
-    const job_name = job.name;
-
+export const SaveButton: React.FC<{
+    job: Job;
+    edit: number | undefined;
+    setStates: [Dispatch<SetStateAction<string>>, Dispatch<SetStateAction<string>>, Dispatch<SetStateAction<number>>];
+}> = ({ job, edit, setStates }) => {
+    const job_id = job.id;
     const [setSuccess, setError, setEdit] = setStates;
     const [loading, setLoading] = useState(false);
 
@@ -33,9 +38,10 @@ export const SaveButton: React.FC<{ job: Job, edit: string | null, setStates: Di
         time_unit: string;
         specific_time: string;
         automation_id: number;
-        isContinuous: number;
-        isActive: boolean,
-        parameters: Record<string, string>;    
+        user_id: number
+        continuous: number;
+        active: boolean,
+        parameters: Record<string, string>;
     }
 
     const handleUpdate = async () => {
@@ -49,12 +55,13 @@ export const SaveButton: React.FC<{ job: Job, edit: string | null, setStates: Di
                 interval: job.interval,
                 time_unit: job.time_unit,
                 specific_time: job.specific_time,
-                isActive: true,
+                active: true,
                 automation_id: job.automation_id,
-                isContinuous: job.isContinuous,
+                user_id: job.user_id,
+                continuous: job.continuous,
                 parameters: JSON.parse(job.arguments) // Or job.automation.parameters if you need the structure from `parameters`
             };
-            
+
             const findMissingFields = (obj: Record<string, any>) =>
                 Object.entries(obj)
                     .filter(([key, value]) => value === null || value === undefined || value === "" || value < 0)
@@ -62,6 +69,11 @@ export const SaveButton: React.FC<{ job: Job, edit: string | null, setStates: Di
 
             const missingFields = findMissingFields(updatePayload);
             const missingParameters = findMissingFields(updatePayload.parameters);
+
+            if (job.user_id < 1) {
+                setError('Your session has expired or your user ID is invalid. Please log in again.');
+                return;
+            }
 
             if (missingFields.length > 0) {
                 setError(`Please fill in the following fields:\n${missingFields.join(', ')}`);
@@ -77,12 +89,12 @@ export const SaveButton: React.FC<{ job: Job, edit: string | null, setStates: Di
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                params: { name: encodeURIComponent(job_name) } // If your backend expects this as a query parameter
+                params: { id: encodeURIComponent(job_id) } // If your backend expects this as a query parameter
             });
-    
-            setSuccess(`The Automation Schedule "${job_name}" was updated successfully.`);
+
+            setSuccess(`The Automation Schedule "${job_id}" was updated successfully.`);
             setError('');
-            setEdit('');
+            setEdit(0);
         } catch (err) {
             console.error('Error updating job:', err);
             setError("Failed to save automation schedule.");
@@ -90,9 +102,9 @@ export const SaveButton: React.FC<{ job: Job, edit: string | null, setStates: Di
             setLoading(false);
         }
     };
-    
 
-    const isEditing = edit === job_name;
+
+    const isEditing = edit === job_id;
 
     return (
         <>
@@ -101,7 +113,7 @@ export const SaveButton: React.FC<{ job: Job, edit: string | null, setStates: Di
                     <Save /> {loading ? "Saving..." : "Save"}
                 </Button>
             ) : (
-                <Button onClick={() => setEdit(job_name)} variant="warning mb-1" size="sm">
+                <Button onClick={() => setEdit(job_id)} variant="warning mb-1" size="sm">
                     <PencilSquare /> Edit
                 </Button>
             )}

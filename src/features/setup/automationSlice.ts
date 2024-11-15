@@ -1,4 +1,4 @@
-// src/features/schedule/automationSlice.ts
+// src/features/setup/automationSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 type AutomationState = {

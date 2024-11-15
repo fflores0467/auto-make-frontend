@@ -1,8 +1,8 @@
-// src/features/schedule/scheduleSlice.ts
+// src/features/setup/jobSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
-// Structure for Scheduler items
-type ScheduleState = {
+// Structure for Job items
+type JobState = {
   name: string;
   start_date: string;
   end_date: string;
@@ -10,7 +10,8 @@ type ScheduleState = {
   time_unit: string;
   specific_time: string;
   automation_id: number;
-  isContinuous: number;
+  user_id: number;
+  continuous: number;
 }
 
 // Build start and end dates 
@@ -18,8 +19,8 @@ const start_date: string = new Date().toISOString().split("T")[0];
 const end_date: string = new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0];
 
 // Create the slice
-const scheduleSlice = createSlice({
-  name: 'schedule',
+const jobSlice = createSlice({
+  name: 'job',
   initialState: {
     name: '',
     start_date,
@@ -28,22 +29,23 @@ const scheduleSlice = createSlice({
     time_unit: 'minutes',
     specific_time: ':00',
     automation_id: -1,
-    isContinuous: 1
-  } as ScheduleState,
+    user_id: -1,
+    continuous: 0
+  } as JobState,
   reducers: {
-    // Reducer to set the schedule name
-    setScheduleState: (state, action: PayloadAction<Partial<ScheduleState>>) => {
-      return {...state, ...action.payload };
+    // Reducer to set the job name
+    setJobState: (state, action: PayloadAction<Partial<JobState>>) => {
+      return { ...state, ...action.payload };
     },
-    // Reducer to clear the schedule name
-    clearScheduleName: (state) => {
+    // Reducer to clear the job name
+    clearJobName: (state) => {
       state.name = ''; // Clear the name
     },
   }
 });
 
 // Export the action to dispatch from components
-export const { setScheduleState, clearScheduleName } = scheduleSlice.actions;
+export const { setJobState, clearJobName } = jobSlice.actions;
 
 // Export the reducer to add to the store
-export default scheduleSlice.reducer;
+export default jobSlice.reducer;
