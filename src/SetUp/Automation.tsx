@@ -133,7 +133,7 @@ export const Automation = () => {
                     'Content-Type': 'application/json',
                 },
             });
-            setSuccess(`The Automation Schedule "${jobState.name}" was Created. The Automation "${settings.data.name}" is Scheduled to Run.\n
+            setSuccess(`The Automation Schedule was Created. The Automation "${settings.data.name}" is Scheduled to Run.\n
                 Feel Free to Build a New Automation Schedule!`);
             dispatch(clearJobName());
         } catch (error) {

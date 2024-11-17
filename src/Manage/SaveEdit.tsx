@@ -92,7 +92,7 @@ export const SaveButton: React.FC<{
                 params: { id: encodeURIComponent(job_id) } // If your backend expects this as a query parameter
             });
 
-            setSuccess(`The Automation Schedule "${job_id}" was updated successfully.`);
+            setSuccess(`The Automation Schedule was updated successfully.`);
             setError('');
             setEdit(0);
         } catch (err) {

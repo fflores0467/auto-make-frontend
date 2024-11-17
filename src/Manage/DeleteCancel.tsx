@@ -21,7 +21,7 @@ export const DeleteButton: React.FC<{
                 params: { id: encodeURIComponent(job_id) },
             });
             // Ensure job_id is converted to a string for the message
-            setSuccess(`The Automation Schedule "${job_id}" was Deleted.\nFeel Free to Set Up a New Automation Schedule!`);
+            setSuccess(`The Automation Schedule was Deleted.\nFeel Free to Set Up a New Automation Schedule!`);
             setError('');
         } catch (err) {
             console.error('Error deleting job:', err);
