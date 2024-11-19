@@ -1,3 +1,4 @@
+// Structure for Automation items, this is what came from the DB for displaying in the automation set up page
 export type Automation = {
     id: number;
     name: string;
@@ -5,7 +6,7 @@ export type Automation = {
     criteria: string | null;
 };
 
-// Structure for Job items
+// Structure for Job items, this is what is going to the DB
 export type Job = {
     name: string;
     start_date: string;
