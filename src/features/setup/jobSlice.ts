@@ -17,9 +17,7 @@ const jobSlice = createSlice({
     time_unit: 'minutes',
     specific_time: ':00',
     automation_id: -1,
-    user_id: -1,
     continuous: 0,
-    active: 1
   } as Job,
   reducers: {
     // Reducer to set the job name
