@@ -1,5 +1,8 @@
 export type Automation = {
-    parameters: Record<string, string>;
+    id: number;
+    name: string;
+    parameters: string;
+    criteria: string | null;
 };
 
 // Structure for Job items
@@ -14,4 +17,5 @@ export type Job = {
     user_id: number;
     continuous: number;
     active: number
+    arguments: Record<string, string>
 }

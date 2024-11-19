@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState, AppDispatch } from '../store'
 import { setJob } from '../features/setup/jobSlice'
-import { clearAutomationState } from '../features/setup/automationSlice'
+import { clearAutomation, setAutomation } from '../features/setup/automationSlice'
 
 import Form from 'react-bootstrap/Form';
 import Container from 'react-bootstrap/Container';
@@ -40,7 +40,6 @@ export const Job = () => {
                 setLoading(false);
             }
         };
-        dispatch(setJob({ user_id: user.id }))
         fetchAutomations();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -55,7 +54,17 @@ export const Job = () => {
         const { name, value } = event.target;
 
         if (name === 'automation_id') {
-            dispatch(clearAutomationState());
+            dispatch(clearAutomation()); // Clear existing automation
+
+            const found = automations.find(
+                automation => automation.id === parseInt(value, 10)
+            );
+
+            if (found) {
+                dispatch(setAutomation(found)); // Set the found automation
+            } else {
+                dispatch(clearAutomation()); // Default
+            }
         }
 
         // Handle numeric inputs (convert string to number)

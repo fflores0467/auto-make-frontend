@@ -6,21 +6,26 @@ import { Automation } from '../../constants/types';
 const automationSlice = createSlice({
   name: 'automation',
   initialState: {
-    parameters: {},
+    id: -1,
+    name: "",
+    parameters: "",
+    criteria: null,
   } as Automation,
   reducers: {
-    setAutomationState: (state, action: PayloadAction<{ field: string; value: string }>) => {
-      // Update only the specific field in the parameter object
-      state.parameters[action.payload.field] = action.payload.value;
+    setAutomation: (state, action: PayloadAction<Partial<Automation>>) => {
+      return { ...state, ...action.payload };
     },
-    clearAutomationState: (state) => {
-      state.parameters = {};
+    clearAutomation: (state) => {
+      state.id = -1;
+      state.name = "";
+      state.parameters = "";
+      state.criteria = null;
     }
   },
 });
 
 // Export the action to dispatch from components
-export const { setAutomationState, clearAutomationState } = automationSlice.actions;
+export const { setAutomation, clearAutomation } = automationSlice.actions;
 
 // Export the reducer to add to the store
 export default automationSlice.reducer;

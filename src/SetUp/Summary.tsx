@@ -43,7 +43,7 @@ export const Summary = ({ show, setModalShow }: { show: boolean; setModalShow: (
                 Object.entries(obj)
                     .filter(([key, value]) => value === null || value === undefined || value === "" || value < 0)
                     .map(([key]) => key); // Return the keys of missing fields
-            const missingAutomationFields = findMissingFields(automationState.parameters);
+            // const missingAutomationFields = findMissingFields(automationState.parameters);
             const missingJobFields = findMissingFields(jobState);
 
             if (jobState.user_id < 1) {
@@ -56,10 +56,10 @@ export const Summary = ({ show, setModalShow }: { show: boolean; setModalShow: (
             //     return;
             // }
 
-            if (missingAutomationFields.length > 0) {
-                setError(`Please fill in the following fields on the "Configure Automation Settings" Page:\n${missingAutomationFields.join(', ')}`);
-                return;
-            }
+            // if (missingAutomationFields.length > 0) {
+            //     setError(`Please fill in the following fields on the "Configure Automation Settings" Page:\n${missingAutomationFields.join(', ')}`);
+            //     return;
+            // }
 
             if (missingJobFields.length > 0) {
                 setError(`Please fill in the following fields on the "Build Scheduler" Page:\n${missingJobFields.join(', ')}`);

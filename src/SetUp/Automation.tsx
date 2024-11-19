@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch } from '../store';
-import { setAutomationState } from '../features/setup/automationSlice';
+import { setAutomation } from '../features/setup/automationSlice';
 
 import Card from 'react-bootstrap/Card';
 import Container from 'react-bootstrap/Container';
@@ -88,7 +88,7 @@ export const Automation = () => {
     // Dispatch automation state in redux to keep data globally
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
-        dispatch(setAutomationState({ field: name, value })); // Update automation parameters in Redux
+        // dispatch(setAutomation({ field: name, value })); // Update automation parameters in Redux
     };
 
     if (loading) {
@@ -132,7 +132,7 @@ export const Automation = () => {
                                                     placeholder={type === 'number' ? `Enter # of ${field}` : `Enter ${field}`}
                                                     name={field}
                                                     onChange={handleChange}
-                                                    value={automationState.parameters[field] || ''}
+                                                    // value={automationState.parameters[field] || ''}
                                                     type={type}
                                                 />
                                             </Form.Group>
