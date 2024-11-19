@@ -1,11 +1,9 @@
-import Container from 'react-bootstrap/Container';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import ProgressBar from 'react-bootstrap/ProgressBar';
-import { useLocation } from 'react-router-dom';
+import { Container, ProgressBar, Button, ButtonGroup, Row, Col } from 'react-bootstrap';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 export const Footer = () => {
+    const navigate = useNavigate(); // Initialize the useNavigate hook
     const totalPages = 4;
     const currentPage = useLocation().pathname;
 
@@ -40,6 +38,14 @@ export const Footer = () => {
     // Determine the variant for the progress bar
     const variant = progress === 100 ? 'success' : 'primary';
 
+    // Function to handle navigation
+    const handleNavigate = (step: number) => {
+        if (step === 1) navigate('/setup/schedule');
+        if (step === 2) navigate('/setup/automation');
+        if (step === 3) navigate('/setup/review');
+        if (step === 4) navigate('/setup/confirmation');
+    };
+
     return (
         <Container fluid>
             {/* Row for Labels */}
@@ -47,11 +53,57 @@ export const Footer = () => {
                 <Col xs={4}>Build Scheduler</Col>
                 <Col xs={4}>Configure Automation Settings</Col>
                 <Col xs={4}>Review Automation Schedule</Col>
-                {/* <Col xs={3}>Confirmation</Col> */}
             </Row>
 
             {/* Single Progress Bar with Built-in Animation */}
             <ProgressBar now={progress} variant={variant} animated />
+
+            <Row className="justify-content-center mt-3 mb-2">
+                <Col xs="auto">
+                    <ButtonGroup className="d-flex">
+                        {activeStep > 1 && activeStep < totalPages && (
+                            <Button
+                                onClick={() => handleNavigate(activeStep - 1)}
+                                variant="secondary" // Style for the "Go Back" button
+                                size="lg"
+                                className="rounded-start"
+                            >
+                                Go Back
+                            </Button>
+                        )}
+                        {activeStep < totalPages - 1 && (
+                            <Button
+                                onClick={() => handleNavigate(activeStep + 1)}
+                                variant="primary" // Style for the "Continue" button
+                                size="lg"
+                                className="rounded-end"
+                            >
+                                Continue
+                            </Button>
+                        )}
+                        {activeStep === totalPages - 1 && (
+                            <Button
+                                onClick={() => handleNavigate(activeStep + 1)}
+                                variant="primary" // Style for the "Submit" button
+                                size="lg"
+                                className="rounded-end"
+                            >
+                                Submit
+                            </Button>
+                        )}
+                        {activeStep === totalPages && (
+                            <Button
+                                onClick={() => handleNavigate(1)}
+                                variant="primary" // Style for the "Go Back to Start" button
+                                size="lg"
+                                className="rounded"
+                            >
+                                Go Back to Start
+                            </Button>
+                        )}
+                    </ButtonGroup>
+                </Col>
+            </Row>
         </Container>
     );
 };
