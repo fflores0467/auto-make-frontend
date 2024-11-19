@@ -28,6 +28,16 @@ export const Header = () => {
                 Configure Automation Settings
               </Nav.Link>
             </LinkContainer>
+            <LinkContainer to="/setup/backroom">
+              <Nav.Link className={currentPage === '/setup/backroom' ? 'nav-link active' : 'nav-link'}>
+                |
+              </Nav.Link>
+            </LinkContainer>
+            <LinkContainer to="/setup/review">
+              <Nav.Link className={currentPage === '/setup/review' ? 'nav-link active' : 'nav-link'}>
+                Review Automation Schedule
+              </Nav.Link>
+            </LinkContainer>
           </Nav>
         </Navbar.Collapse>
       </Container>

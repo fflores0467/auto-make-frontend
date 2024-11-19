@@ -1,4 +1,5 @@
 import { Header } from './Header';
+import { Footer } from './Footer';
 
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -23,6 +24,7 @@ export const Job = () => {
 
     const [automations, setAutomations] = useState<{ id: number, name: string }[]>([]); // For the dropdown
     const [loading, setLoading] = useState(true);
+    const [success, setSuccess] = useState('')
     const [error, setError] = useState('');
 
     // Fetch all automations when component mounts
@@ -191,6 +193,9 @@ export const Job = () => {
                         </Row>
                     </Form>
                 </Card.Body>
+                <Card.Footer>
+                    <Footer />
+                </Card.Footer>
             </Card>
         </Container>
     )

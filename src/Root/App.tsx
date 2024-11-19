@@ -5,6 +5,8 @@ import { Home } from '../Home/Home';
 import { Manage } from '../Manage/Manage';
 import { Job } from '../SetUp/Job';
 import { Automation } from '../SetUp/Automation';
+import { Review } from '../SetUp/Review';
+import { Confirmation } from '../SetUp/Confirmation';
 import { BackRoom } from '../SetUp/BackRoom';
 import { Notification } from '../Notification/Notification';
 
@@ -19,6 +21,8 @@ const App = () => {
         <Route path='/setup/schedule' element={<Job />}></Route>
         <Route path='/setup/backroom' element={<BackRoom />}></Route>
         <Route path='/setup/automation' element={<Automation />}></Route>
+        <Route path='/setup/review' element={<Review />}></Route>
+        <Route path='/setup/confirmation' element={<Confirmation />}></Route>
         <Route path='/manage' element={<Manage />}></Route>
         <Route path='/notification' element={<Notification />}></Route>
       </Routes>
