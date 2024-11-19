@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState, AppDispatch } from '../store'
-import { setJobState } from '../features/setup/jobSlice'
+import { setJob } from '../features/setup/jobSlice'
 import { clearAutomationState } from '../features/setup/automationSlice'
 
 import Form from 'react-bootstrap/Form';
@@ -19,12 +19,11 @@ const baseUrl = process.env.REACT_APP_API_BASE_URL;
 
 export const Job = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const jobState = useSelector((state: RootState) => state.job);
+    const job = useSelector((state: RootState) => state.job);
     const user = useSelector((state: RootState) => state.user);
 
     const [automations, setAutomations] = useState<{ id: number, name: string }[]>([]); // For the dropdown
     const [loading, setLoading] = useState(true);
-    const [success, setSuccess] = useState('')
     const [error, setError] = useState('');
 
     // Fetch all automations when component mounts
@@ -41,7 +40,7 @@ export const Job = () => {
                 setLoading(false);
             }
         };
-        dispatch(setJobState({ user_id: user.id }))
+        dispatch(setJob({ user_id: user.id }))
         fetchAutomations();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -61,12 +60,36 @@ export const Job = () => {
 
         // Handle numeric inputs (convert string to number)
         if (name === 'interval' || name === 'automation_id' || name === 'continuous') {
-            dispatch(setJobState({ [name]: parseInt(value, 10) }));
+            dispatch(setJob({ [name]: parseInt(value, 10) }));
         }
         // Handle string inputs
         else {
-            dispatch(setJobState({ [name]: value }));
+            dispatch(setJob({ [name]: value }));
         }
+    };
+
+    // State to track missing fields
+    const [missingFields, setMissingFields] = useState<string[]>([]);
+
+    // Prevent continue if any fields are missing
+    const handleContinue = (preventContinue: React.Dispatch<React.SetStateAction<boolean>>) => {
+        const findMissingFields = Object.entries(job)
+            .filter(([_, value]) =>
+                value === null ||
+                value === undefined ||
+                value === "" ||
+                (typeof value === "number" && value < 0)
+            )
+            .map(([key]) => key); // Return the keys of missing fields
+
+        if (findMissingFields.length > 0) {
+            preventContinue(true);
+            setMissingFields(findMissingFields); // Update missing fields state
+            return;
+        }
+
+        preventContinue(false);
+        setMissingFields([]); // Clear missing fields state when there are no missed fields
     };
 
     return (
@@ -85,7 +108,8 @@ export const Job = () => {
                                         placeholder='Enter Schedule Name'
                                         onChange={handleChange}
                                         name='name'
-                                        value={jobState.name}
+                                        isInvalid={missingFields.includes('name')}
+                                        value={job.name}
                                     />
                                 </Form.Group>
                             </Col>
@@ -99,7 +123,8 @@ export const Job = () => {
                                         type="date"
                                         onChange={handleChange}
                                         name='start_date'
-                                        value={jobState.start_date}
+                                        isInvalid={missingFields.includes('start_date')}
+                                        value={job.start_date}
                                     />
                                 </Form.Group>
                             </Col>
@@ -110,7 +135,8 @@ export const Job = () => {
                                         type="date"
                                         onChange={handleChange}
                                         name='end_date'
-                                        value={jobState.end_date}
+                                        isInvalid={missingFields.includes('end_date')}
+                                        value={job.end_date}
                                     />
                                 </Form.Group>
                             </Col>
@@ -125,7 +151,8 @@ export const Job = () => {
                                         type="number"
                                         onChange={handleChange}
                                         name='interval'
-                                        value={jobState.interval || ''}
+                                        isInvalid={missingFields.includes('interval')}
+                                        value={job.interval || ''}
                                     />
                                 </Form.Group>
                             </Col>
@@ -136,7 +163,8 @@ export const Job = () => {
                                         style={{ textTransform: 'capitalize' }}
                                         aria-label="Default select example"
                                         name='time_unit'
-                                        value={jobState.time_unit}
+                                        isInvalid={missingFields.includes('time_unit')}
+                                        value={job.time_unit}
                                         onChange={handleChange}
                                     >
                                         {time_units.map((x) => (
@@ -149,10 +177,11 @@ export const Job = () => {
                                 <Form.Group>
                                     <Form.Label>At:</Form.Label>
                                     <Form.Control
-                                        placeholder={jobState.specific_time}
+                                        placeholder={job.specific_time}
                                         onChange={handleChange}
                                         name='specific_time'
-                                        value={jobState.specific_time}
+                                        isInvalid={missingFields.includes('specific_time')}
+                                        value={job.specific_time}
                                     />
                                 </Form.Group>
                             </Col>
@@ -163,7 +192,8 @@ export const Job = () => {
                                         aria-label="Default select example"
                                         onChange={handleChange}
                                         name='automation_id'
-                                        value={jobState.automation_id}
+                                        isInvalid={missingFields.includes('automation_id')}
+                                        value={job.automation_id}
                                         disabled={loading || automations.length === 0} // Disable until automations load
                                     >
                                         <option value={-1}>{loading ? 'Loading Automations...' : 'Select Automation...'}</option>
@@ -183,7 +213,8 @@ export const Job = () => {
                                         aria-label="Default select example"
                                         onChange={handleChange}
                                         name='continuous'
-                                        value={jobState.continuous}
+                                        isInvalid={missingFields.includes('continuous')}
+                                        value={job.continuous}
                                     >
                                         <option value={0}>Criteria Met</option>
                                         <option value={1}>End Date Reached</option>
@@ -194,7 +225,7 @@ export const Job = () => {
                     </Form>
                 </Card.Body>
                 <Card.Footer>
-                    <Footer />
+                    <Footer validate={handleContinue} />
                 </Card.Footer>
             </Card>
         </Container>
