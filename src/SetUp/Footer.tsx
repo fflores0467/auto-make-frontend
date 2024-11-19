@@ -41,10 +41,14 @@ export const Footer = ({ validate }: { validate?: (setError: React.Dispatch<Reac
     const [stepToNavigate, setStepToNavigate] = useState<number | null>(null);
 
     // Function to handle navigation
-    const handleNavigate = (step: number) => {
+    const handleNavigate = (step: number, back: boolean) => {
         if (validate) {
             // Call validate and pass setError to update the error state
             validate(setError);
+        }
+
+        if (back) {
+            setError(false);
         }
         setStepToNavigate(step); // Store the step to navigate to
     };
@@ -83,7 +87,7 @@ export const Footer = ({ validate }: { validate?: (setError: React.Dispatch<Reac
                     <ButtonGroup className="d-flex">
                         {activeStep > 1 && activeStep < totalPages && (
                             <Button
-                                onClick={() => handleNavigate(activeStep - 1)}
+                                onClick={() => handleNavigate(activeStep - 1, true)}
                                 variant="secondary"
                                 size="lg"
                                 className="rounded-start"
@@ -93,7 +97,7 @@ export const Footer = ({ validate }: { validate?: (setError: React.Dispatch<Reac
                         )}
                         {activeStep < totalPages && (
                             <Button
-                                onClick={() => handleNavigate(activeStep + 1)}
+                                onClick={() => handleNavigate(activeStep + 1, false)}
                                 variant="primary"
                                 size="lg"
                                 className={activeStep < totalPages - 1 ? "rounded-end" : "rounded"}
@@ -103,7 +107,7 @@ export const Footer = ({ validate }: { validate?: (setError: React.Dispatch<Reac
                         )}
                         {activeStep === totalPages && (
                             <Button
-                                onClick={() => handleNavigate(1)}
+                                onClick={() => handleNavigate(1, false)}
                                 variant="primary"
                                 size="lg"
                                 className="rounded"

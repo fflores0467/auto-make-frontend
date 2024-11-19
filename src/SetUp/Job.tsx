@@ -6,7 +6,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState, AppDispatch } from '../store'
-import { setJob } from '../features/setup/jobSlice'
+import { setJob, clearArguments } from '../features/setup/jobSlice'
 import { clearAutomation, setAutomation } from '../features/setup/automationSlice'
 
 import Form from 'react-bootstrap/Form';
@@ -20,7 +20,6 @@ const baseUrl = process.env.REACT_APP_API_BASE_URL;
 export const Job = () => {
     const dispatch = useDispatch<AppDispatch>();
     const job = useSelector((state: RootState) => state.job);
-    const user = useSelector((state: RootState) => state.user);
 
     const [automations, setAutomations] = useState<{ id: number, name: string }[]>([]); // For the dropdown
     const [loading, setLoading] = useState(true);
@@ -55,6 +54,7 @@ export const Job = () => {
 
         if (name === 'automation_id') {
             dispatch(clearAutomation()); // Clear existing automation
+            dispatch(clearArguments()) // Clear existing arguments
 
             const found = automations.find(
                 automation => automation.id === parseInt(value, 10)
@@ -64,6 +64,7 @@ export const Job = () => {
                 dispatch(setAutomation(found)); // Set the found automation
             } else {
                 dispatch(clearAutomation()); // Default
+                dispatch(clearArguments()) // Default
             }
         }
 

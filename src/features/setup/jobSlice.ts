@@ -18,6 +18,7 @@ const jobSlice = createSlice({
     specific_time: ':00',
     automation_id: -1,
     continuous: 0,
+    arguments: {}
   } as Job,
   reducers: {
     // Reducer to set the job name
@@ -28,11 +29,15 @@ const jobSlice = createSlice({
     clearJobName: (state) => {
       state.name = ''; // Clear the name
     },
+    // Reducer to clear the arguments
+    clearArguments: (state) => {
+      state.arguments = {}; // Clear the arguments
+    },
   }
 });
 
 // Export the action to dispatch from components
-export const { setJob, clearJobName } = jobSlice.actions;
+export const { setJob, clearJobName, clearArguments } = jobSlice.actions;
 
 // Export the reducer to add to the store
 export default jobSlice.reducer;

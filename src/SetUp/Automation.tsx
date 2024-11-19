@@ -1,13 +1,11 @@
-import { Loading } from '../components/Loading'
 import { Header } from "./Header";
 import { Footer } from './Footer';
 
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch } from '../store';
-import { setAutomation } from '../features/setup/automationSlice';
+import { setJob } from '../features/setup/jobSlice'
 
 import Card from 'react-bootstrap/Card';
 import Container from 'react-bootstrap/Container';
@@ -15,18 +13,11 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-const baseUrl = process.env.REACT_APP_API_BASE_URL;
 
 export const Automation = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const jobState = useSelector((state: RootState) => state.job);
-    const automationState = useSelector((state: RootState) => state.automation);
-    const automation_id = jobState.automation_id;
-
-    const [loading, setLoading] = useState(true);
-    const [success, setSuccess] = useState('')
-    const [error, setError] = useState('');
-
+    const job = useSelector((state: RootState) => state.job);
+    const automation = useSelector((state: RootState) => state.automation);
 
     type Criteria = {
         field: {
@@ -47,57 +38,58 @@ export const Automation = () => {
         }
     });
 
+    const automationParameters = useMemo(() => {
+        if (automation.parameters) {
+            return JSON.parse(automation.parameters);
+        } else {
+            return {};
+        }
+    }, [automation.parameters]);
+
+    // Set init arguments in the store for to track missing fields since arguments is defaulted at {}
     useEffect(() => {
-        const fetchAutomationParameters = async () => {
-            if (automation_id && automation_id > 0) {
-                setError("");
-                setLoading(true);
-                try {
-                    const response = await axios.get(`${baseUrl}/read-automation`, {
-                        params: { id: encodeURIComponent(automation_id) },
-                        timeout: 5000,
-                    });
+        // Initialize arguments in Redux with empty strings if there is no argument data
+        if (Object.keys(job.arguments).length === 0) {
+            const initialArguments = Object.keys(automationParameters).reduce((acc, key) => {
+                acc[key] = "";
+                return acc;
+            }, {} as Record<string, string>);
 
-                    const json = response.data;
-                    const parsedParameters = JSON.parse(json.data.parameters);
-                    const parsedCriteria = JSON.parse(json.data.criteria);
-
-                    setSettings({
-                        ...json,
-                        data: {
-                            ...json.data,
-                            parameters: parsedParameters,
-                            criteria: parsedCriteria
-                        }
-                    });
-                } catch (error) {
-                    setError("An error occurred while fetching automation parameters.");
-                    console.error('Error:', error);
-                } finally {
-                    setLoading(false);
-                }
-            } else {
-                setError('Please select an automation from the "Build Schedule" Page.');
-                setLoading(false);
-            }
-        };
-
-        fetchAutomationParameters();
-    }, [automation_id]);
+            dispatch(setJob({ arguments: { ...job.arguments, ...initialArguments } }));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [automationParameters]);
 
     // Dispatch automation state in redux to keep data globally
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
-        // dispatch(setAutomation({ field: name, value })); // Update automation parameters in Redux
+        dispatch(setJob({ arguments: { ...job.arguments, [name]: value } }));
     };
 
-    if (loading) {
-        return (
-            <Loading Header={<Header />}></Loading>
-        );
-    }
+    // State to track missing fields
+    const [missingFields, setMissingFields] = useState<string[]>([]);
 
-    const borderType = error ? 'danger' : success ? 'success' : 'secondary';
+    // Prevent continue if any fields are missing
+    const handleContinue = (preventContinue: React.Dispatch<React.SetStateAction<boolean>>) => {
+        const findMissingFields = Object.entries(job.arguments)
+            .filter(([_, value]) =>
+                value === null ||
+                value === undefined ||
+                value === "" ||
+                (typeof value === "number" && value < 0)
+            )
+            .map(([key]) => key); // Return the keys of missing fields
+
+        if (findMissingFields.length > 0) {
+            preventContinue(true);
+            setMissingFields(findMissingFields); // Update missing fields state
+            return;
+        }
+
+        preventContinue(false);
+        setMissingFields([]); // Clear missing fields state when there are no missed fields
+    };
+
     return (
         <Container fluid className='pt-3'>
             <Card border={'dark'}>
@@ -105,35 +97,26 @@ export const Automation = () => {
                     <Header />
                 </Card.Header>
                 <Card.Body>
-                    {(error || success) && (
-                        <Card.Body>
-                            <Card border={borderType}>
-                                <Card.Body>
-                                    <Card.Title>{error ? 'Unable to Proceed' : 'Success!'}</Card.Title>
-                                    <Card.Text>{error || success}</Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </Card.Body>
-                    )}
                     <Card.Header>
-                        <h5>{settings.data.name || "This Automation"}</h5>
+                        <h5>{automation.name || "This Automation"}</h5>
                     </Card.Header>
                     <br />
                     <Form>
                         <Row>
                             {/* Left Side */}
                             <Col md={6}>
-                                {Object.entries(settings.data.parameters).map(([field, type], index) => (
-                                    <Row key={index} className="pb-3">
+                                {Object.entries(automationParameters).map(([field, type]) => (
+                                    <Row key={field} className="pb-3">
                                         <Col>
                                             <Form.Group>
                                                 <Form.Label style={{ textTransform: 'capitalize' }}>{field}</Form.Label>
                                                 <Form.Control
                                                     placeholder={type === 'number' ? `Enter # of ${field}` : `Enter ${field}`}
                                                     name={field}
+                                                    isInvalid={missingFields.includes(field)}
                                                     onChange={handleChange}
-                                                    // value={automationState.parameters[field] || ''}
-                                                    type={type}
+                                                    type={type as "text" | "number" | "date"}
+                                                    value={job.arguments[field] || ''}
                                                 />
                                             </Form.Group>
                                         </Col>
@@ -149,11 +132,9 @@ export const Automation = () => {
                     </Form>
                 </Card.Body>
                 <Card.Footer>
-                    <Footer />
+                    <Footer validate={handleContinue} />
                 </Card.Footer>
             </Card>
-
-
         </Container >
     );
 };
