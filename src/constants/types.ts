@@ -15,7 +15,6 @@ export type Job = {
     time_unit: string;
     specific_time: string;
     automation_id: number;
-    user_id: number;
     continuous: number;
     active: number
     arguments: Record<string, string>

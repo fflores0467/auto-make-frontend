@@ -30,14 +30,15 @@ const jobSlice = createSlice({
       state.name = ''; // Clear the name
     },
     // Reducer to clear the arguments
-    clearArguments: (state) => {
+    clearJobAutomation: (state) => {
+      state.automation_id = -1
       state.arguments = {}; // Clear the arguments
     },
   }
 });
 
 // Export the action to dispatch from components
-export const { setJob, clearJobName, clearArguments } = jobSlice.actions;
+export const { setJob, clearJobName, clearJobAutomation } = jobSlice.actions;
 
 // Export the reducer to add to the store
 export default jobSlice.reducer;

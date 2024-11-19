@@ -8,7 +8,7 @@ import React, { useEffect, useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState, AppDispatch } from '../store'
-import { setJob, clearArguments } from '../features/setup/jobSlice'
+import { setJob, clearJobAutomation } from '../features/setup/jobSlice'
 import { clearAutomation, setAutomation } from '../features/setup/automationSlice'
 
 import Form from 'react-bootstrap/Form';
@@ -56,7 +56,7 @@ export const Job = () => {
 
         if (name === 'automation_id') {
             dispatch(clearAutomation()); // Clear any existing automation data
-            dispatch(clearArguments()); // Clear existing job arguments
+            dispatch(clearJobAutomation()); // Clear existing job arguments
 
             // Find the automation with the matching ID from the automations list
             const automation = automations.find(
@@ -82,7 +82,7 @@ export const Job = () => {
             else {
                 // If no matching automation is found, reset automation and arguments to default
                 dispatch(clearAutomation());
-                dispatch(clearArguments());
+                dispatch(clearJobAutomation());
             }
         }
 
