@@ -1,18 +1,6 @@
 // src/features/setup/jobSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-
-// Structure for Job items
-type JobState = {
-  name: string;
-  start_date: string;
-  end_date: string;
-  interval: number | string;
-  time_unit: string;
-  specific_time: string;
-  automation_id: number;
-  user_id: number;
-  continuous: number;
-}
+import { Job } from '../../constants/types';
 
 // Build start and end dates 
 const start_date: string = new Date().toISOString().split("T")[0];
@@ -30,11 +18,12 @@ const jobSlice = createSlice({
     specific_time: ':00',
     automation_id: -1,
     user_id: -1,
-    continuous: 0
-  } as JobState,
+    continuous: 0,
+    active: 1
+  } as Job,
   reducers: {
     // Reducer to set the job name
-    setJobState: (state, action: PayloadAction<Partial<JobState>>) => {
+    setJob: (state, action: PayloadAction<Partial<Job>>) => {
       return { ...state, ...action.payload };
     },
     // Reducer to clear the job name
@@ -45,7 +34,7 @@ const jobSlice = createSlice({
 });
 
 // Export the action to dispatch from components
-export const { setJobState, clearJobName } = jobSlice.actions;
+export const { setJob, clearJobName } = jobSlice.actions;
 
 // Export the reducer to add to the store
 export default jobSlice.reducer;

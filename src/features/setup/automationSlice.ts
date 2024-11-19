@@ -1,16 +1,13 @@
 // src/features/setup/automationSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-type AutomationState = {
-  parameters: Record<string, string>;
-};
+import { Automation } from '../../constants/types';
 
 // Create the slice
 const automationSlice = createSlice({
   name: 'automation',
   initialState: {
     parameters: {},
-  } as AutomationState,
+  } as Automation,
   reducers: {
     setAutomationState: (state, action: PayloadAction<{ field: string; value: string }>) => {
       // Update only the specific field in the parameter object
