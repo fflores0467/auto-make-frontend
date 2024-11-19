@@ -1,7 +1,9 @@
+import { findMissingFields } from '../constants/utils'; // Import the utility function
 import { Header } from "./Header";
 import { Footer } from './Footer';
 
 import React, { useMemo, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch } from '../store';
@@ -13,11 +15,28 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-
 export const Automation = () => {
     const dispatch = useDispatch<AppDispatch>();
+    const navigate = useNavigate(); // Initialize the useNavigate hook
     const job = useSelector((state: RootState) => state.job);
     const automation = useSelector((state: RootState) => state.automation);
+
+    // Check if job is empty and navigate back to /setup/schedule to set up the schedule
+    useEffect(() => {
+        const missingFields = findMissingFields(job)
+        if (missingFields.length > 0) {
+            console.error("Unable to proceed: Missing the following fields from the build scheduler page", missingFields)
+            navigate('/setup/schedule'); // Redirect to the schedule page if arguments are empty
+        }
+    }, [job, navigate]);
+
+    const automationParameters = useMemo(() => {
+        if (automation.parameters) {
+            return JSON.parse(automation.parameters);
+        } else {
+            return {};
+        }
+    }, [automation.parameters]);
 
     type Criteria = {
         field: {
@@ -38,28 +57,6 @@ export const Automation = () => {
         }
     });
 
-    const automationParameters = useMemo(() => {
-        if (automation.parameters) {
-            return JSON.parse(automation.parameters);
-        } else {
-            return {};
-        }
-    }, [automation.parameters]);
-
-    // Set init arguments in the store for to track missing fields since arguments is defaulted at {}
-    useEffect(() => {
-        // Initialize arguments in Redux with empty strings if there is no argument data
-        if (Object.keys(job.arguments).length === 0) {
-            const initialArguments = Object.keys(automationParameters).reduce((acc, key) => {
-                acc[key] = "";
-                return acc;
-            }, {} as Record<string, string>);
-
-            dispatch(setJob({ arguments: { ...job.arguments, ...initialArguments } }));
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [automationParameters]);
-
     // Dispatch automation state in redux to keep data globally
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
@@ -71,18 +68,11 @@ export const Automation = () => {
 
     // Prevent continue if any fields are missing
     const handleContinue = (preventContinue: React.Dispatch<React.SetStateAction<boolean>>) => {
-        const findMissingFields = Object.entries(job.arguments)
-            .filter(([_, value]) =>
-                value === null ||
-                value === undefined ||
-                value === "" ||
-                (typeof value === "number" && value < 0)
-            )
-            .map(([key]) => key); // Return the keys of missing fields
+        const missingFields = findMissingFields(job.arguments)
 
-        if (findMissingFields.length > 0) {
+        if (missingFields.length > 0) {
             preventContinue(true);
-            setMissingFields(findMissingFields); // Update missing fields state
+            setMissingFields(missingFields); // Update missing fields state
             return;
         }
 

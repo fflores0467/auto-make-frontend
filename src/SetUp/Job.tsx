@@ -1,5 +1,7 @@
+import { findMissingFields } from '../constants/utils'; // Import the utility function
 import { Header } from './Header';
 import { Footer } from './Footer';
+import { Automation } from '../constants/types';
 
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -21,7 +23,7 @@ export const Job = () => {
     const dispatch = useDispatch<AppDispatch>();
     const job = useSelector((state: RootState) => state.job);
 
-    const [automations, setAutomations] = useState<{ id: number, name: string }[]>([]); // For the dropdown
+    const [automations, setAutomations] = useState<Automation[]>([]); // For the dropdown
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -53,18 +55,34 @@ export const Job = () => {
         const { name, value } = event.target;
 
         if (name === 'automation_id') {
-            dispatch(clearAutomation()); // Clear existing automation
-            dispatch(clearArguments()) // Clear existing arguments
+            dispatch(clearAutomation()); // Clear any existing automation data
+            dispatch(clearArguments()); // Clear existing job arguments
 
-            const found = automations.find(
+            // Find the automation with the matching ID from the automations list
+            const automation = automations.find(
                 automation => automation.id === parseInt(value, 10)
             );
 
-            if (found) {
-                dispatch(setAutomation(found)); // Set the found automation
-            } else {
-                dispatch(clearAutomation()); // Default
-                dispatch(clearArguments()) // Default
+            if (automation) {
+                dispatch(setAutomation(automation)); // Set the newly found automation in the store
+
+                // Initialize automation parameters with empty strings into job.arguments
+                const automationParameters = JSON.parse(automation.parameters);
+                // If job.arguments is empty, initialize it with default values from automation.parameters
+                if (Object.keys(job.arguments).length === 0) {
+                    // Use automation.parameters to generate initialArguments with default empty strings
+                    const initialArguments = Object.keys(automationParameters).reduce((acc, key) => {
+                        acc[key] = ""; // Initialize each parameter with an empty string
+                        return acc;
+                    }, {} as Record<string, string>);
+
+                    dispatch(setJob({ arguments: initialArguments })); // Set the initial arguments in the job store
+                }
+            }
+            else {
+                // If no matching automation is found, reset automation and arguments to default
+                dispatch(clearAutomation());
+                dispatch(clearArguments());
             }
         }
 
@@ -83,18 +101,11 @@ export const Job = () => {
 
     // Prevent continue if any fields are missing
     const handleContinue = (preventContinue: React.Dispatch<React.SetStateAction<boolean>>) => {
-        const findMissingFields = Object.entries(job)
-            .filter(([_, value]) =>
-                value === null ||
-                value === undefined ||
-                value === "" ||
-                (typeof value === "number" && value < 0)
-            )
-            .map(([key]) => key); // Return the keys of missing fields
+        const missingFields = findMissingFields(job)
 
-        if (findMissingFields.length > 0) {
+        if (missingFields.length > 0) {
             preventContinue(true);
-            setMissingFields(findMissingFields); // Update missing fields state
+            setMissingFields(missingFields); // Update missing fields state
             return;
         }
 

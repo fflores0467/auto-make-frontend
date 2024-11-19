@@ -100,9 +100,9 @@ export const Footer = ({ validate }: { validate?: (setError: React.Dispatch<Reac
                                 onClick={() => handleNavigate(activeStep + 1, false)}
                                 variant="primary"
                                 size="lg"
-                                className={activeStep < totalPages - 1 ? "rounded-end" : "rounded"}
+                                className="rounded-end"
                             >
-                                {activeStep < totalPages - 1 ? "Continue" : "Submit"}
+                                {activeStep < totalPages - 1 ? "Continue" : "Review"}
                             </Button>
                         )}
                         {activeStep === totalPages && (
