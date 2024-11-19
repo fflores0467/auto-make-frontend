@@ -25,9 +25,17 @@ const jobSlice = createSlice({
     setJob: (state, action: PayloadAction<Partial<Job>>) => {
       return { ...state, ...action.payload };
     },
-    // Reducer to clear the job name
-    clearJobName: (state) => {
-      state.name = ''; // Clear the name
+    // Reducer to set the Job back to default state
+    clearJob: (state) => {
+      state.name = '';
+      state.start_date = start_date;
+      state.end_date = end_date;
+      state.interval = 5;
+      state.time_unit = 'minutes';
+      state.specific_time = ':00';
+      state.automation_id = -1;
+      state.continuous = 0;
+      state.arguments = {};
     },
     // Reducer to clear the arguments
     clearJobAutomation: (state) => {
@@ -38,7 +46,7 @@ const jobSlice = createSlice({
 });
 
 // Export the action to dispatch from components
-export const { setJob, clearJobName, clearJobAutomation } = jobSlice.actions;
+export const { setJob, clearJob, clearJobAutomation } = jobSlice.actions;
 
 // Export the reducer to add to the store
 export default jobSlice.reducer;

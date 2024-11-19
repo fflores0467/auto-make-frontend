@@ -82,43 +82,35 @@ export const Footer = ({ validate }: { validate?: (setError: React.Dispatch<Reac
             {/* Single Progress Bar with Built-in Animation */}
             <ProgressBar now={progress} variant={variant} animated />
 
-            <Row className="justify-content-center mt-3 mb-2">
-                <Col xs="auto">
-                    <ButtonGroup className="d-flex">
-                        {activeStep > 1 && activeStep < totalPages && (
-                            <Button
-                                onClick={() => handleNavigate(activeStep - 1, true)}
-                                variant="secondary"
-                                size="lg"
-                                className="rounded-start"
-                            >
-                                Go Back
-                            </Button>
-                        )}
-                        {activeStep < totalPages && (
-                            <Button
-                                onClick={() => handleNavigate(activeStep + 1, false)}
-                                variant="primary"
-                                size="lg"
-                                className="rounded-end"
-                            >
-                                {activeStep < totalPages - 1 ? "Continue" : "Review"}
-                            </Button>
-                        )}
-                        {activeStep === totalPages && (
-                            <Button
-                                onClick={() => handleNavigate(1, false)}
-                                variant="primary"
-                                size="lg"
-                                className="rounded"
-                            >
-                                Go Back to Start
-                            </Button>
-                        )}
-                    </ButtonGroup>
+            {activeStep !== totalPages &&
+                <Row className="justify-content-center mt-3 mb-2">
+                    <Col xs="auto">
+                        <ButtonGroup className="d-flex">
+                            {activeStep > 1 && activeStep < totalPages && (
+                                <Button
+                                    onClick={() => handleNavigate(activeStep - 1, true)}
+                                    variant="secondary"
+                                    size="lg"
+                                    className="rounded-start"
+                                >
+                                    Go Back
+                                </Button>
+                            )}
+                            {activeStep < totalPages && (
+                                <Button
+                                    onClick={() => handleNavigate(activeStep + 1, false)}
+                                    variant="primary"
+                                    size="lg"
+                                    className="rounded-end"
+                                >
+                                    {activeStep < totalPages - 1 ? "Continue" : "Review"}
+                                </Button>
+                            )}
+                        </ButtonGroup>
 
-                </Col>
-            </Row>
+                    </Col>
+                </Row>
+            }
         </Container>
     );
 };
