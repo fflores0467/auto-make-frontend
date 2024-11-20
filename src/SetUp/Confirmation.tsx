@@ -17,17 +17,6 @@ import { Link } from 'react-router-dom';
 
 export const Confirmation = () => {
     const dispatch = useDispatch<AppDispatch>();
-    const navigate = useNavigate(); // Initialize the useNavigate hook
-    const job = useSelector((state: RootState) => state.job);
-
-    useEffect(() => {
-        const missingScheduleFields = findErrorFields(job);
-        const missingArgumentsFields = findErrorFields(job.arguments);
-        if (missingScheduleFields.length > 0 || missingArgumentsFields.length > 0) {
-            navigate('/setup/automation'); // Redirect to the schedule page if arguments are empty
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [navigate]); // Do not re-render if job changes, as job will be deleted upon arrival in next useEffect
 
     useEffect(() => {
         dispatch(clearJob());
