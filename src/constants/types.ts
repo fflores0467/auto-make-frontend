@@ -11,7 +11,7 @@ export type Job = {
     name: string;
     start_date: string;
     end_date: string;
-    interval: number | string;
+    interval: number;
     time_unit: string;
     specific_time: string;
     automation_id: number;

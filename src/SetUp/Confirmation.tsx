@@ -1,4 +1,4 @@
-import { findMissingFields } from '../constants/utils'; // Import the utility function
+import { findErrorFields } from '../constants/utils'; // Import the utility function
 import { Header } from "./Header";
 import { Footer } from './Footer';
 
@@ -21,8 +21,8 @@ export const Confirmation = () => {
     const job = useSelector((state: RootState) => state.job);
 
     useEffect(() => {
-        const missingScheduleFields = findMissingFields(job);
-        const missingArgumentsFields = findMissingFields(job.arguments);
+        const missingScheduleFields = findErrorFields(job);
+        const missingArgumentsFields = findErrorFields(job.arguments);
         if (missingScheduleFields.length > 0 || missingArgumentsFields.length > 0) {
             navigate('/setup/automation'); // Redirect to the schedule page if arguments are empty
         }
@@ -52,7 +52,7 @@ export const Confirmation = () => {
                         </Link>
                     </div>
                 </Card.Body>
-                <Card.Footer>
+                <Card.Footer className="mb-4"> {/* Added mb-4 for extra space below the footer */}
                     <Footer />
                 </Card.Footer>
             </Card>

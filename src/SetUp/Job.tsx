@@ -1,4 +1,4 @@
-import { findMissingFields } from '../constants/utils'; // Import the utility function
+import { findErrorFields, getLocalTodayDate } from '../constants/utils'; // Import the utility function
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { Automation } from '../constants/types';
@@ -18,6 +18,18 @@ import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
 
 const baseUrl = process.env.REACT_APP_API_BASE_URL;
+
+type TimeUnit = {
+    unit: string,
+    time_str: string
+}
+
+// Time unit options
+const time_units: TimeUnit[] = [
+    { unit: "minutes", time_str: ":SS" },
+    { unit: "hours", time_str: "MM:SS || :MM" },
+    { unit: "days", time_str: "HH:MM:SS || HH:MM" }
+];
 
 export const Job = () => {
     const dispatch = useDispatch<AppDispatch>();
@@ -44,12 +56,6 @@ export const Job = () => {
         fetchAutomations();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
-
-    type TimeUnit = {
-        unit: string,
-        time_str: string
-    }
-    const time_units: TimeUnit[] = [{ unit: "minutes", time_str: ":SS" }, { unit: "hours", time_str: "MM:SS || :MM" }, { unit: "days", time_str: "HH:MM:SS || HH:MM" }];
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
@@ -86,7 +92,7 @@ export const Job = () => {
             }
         }
 
-        // Handle numeric inputs (convert string to number)
+        // Handle numeric inputs (convert string to number) 
         if (name === 'interval' || name === 'automation_id' || name === 'continuous') {
             dispatch(setJob({ [name]: parseInt(value, 10) }));
         }
@@ -96,21 +102,25 @@ export const Job = () => {
         }
     };
 
-    // State to track missing fields
-    const [missingFields, setMissingFields] = useState<string[]>([]);
+    // State to track error fields
+    const [errorFields, setErrorFields] = useState<Record<string, string>>({});
 
     // Prevent continue if any fields are missing
     const handleContinue = (preventContinue: React.Dispatch<React.SetStateAction<boolean>>) => {
-        const missingFields = findMissingFields(job)
+        const errors = findErrorFields(job);
 
-        if (missingFields.length > 0) {
+        if (errors.length > 0) {
             preventContinue(true);
-            setMissingFields(missingFields); // Update missing fields state
+            const errorMessages = errors.reduce((acc, { key, errorMessage }) => {
+                acc[key] = errorMessage;
+                return acc;
+            }, {} as Record<string, string>);
+            setErrorFields(errorMessages); // Update state with error messages
             return;
         }
 
         preventContinue(false);
-        setMissingFields([]); // Clear missing fields state when there are no missed fields
+        setErrorFields({}); // Clear error messages when there are no issues
     };
 
     return (
@@ -129,42 +139,53 @@ export const Job = () => {
                                         placeholder='Enter Schedule Name'
                                         onChange={handleChange}
                                         name='name'
-                                        isInvalid={missingFields.includes('name')}
+                                        isInvalid={!!errorFields.name}
                                         value={job.name}
                                     />
+                                    {errorFields.name && (
+                                        <Form.Text className="text-danger">{errorFields.name}</Form.Text>
+                                    )}
                                 </Form.Group>
                             </Col>
                         </Row>
 
-                        <Row className="pb-3">
-                            <Col md={6}>
+                        <Row className="pb-3 gy-3">
+                            <Col sm={12} md={6}>
                                 <Form.Group>
                                     <Form.Label>Start Date</Form.Label>
                                     <Form.Control
                                         type="date"
                                         onChange={handleChange}
-                                        name='start_date'
-                                        isInvalid={missingFields.includes('start_date')}
+                                        name="start_date"
+                                        isInvalid={!!errorFields.start_date}
                                         value={job.start_date}
+                                        min={getLocalTodayDate()}
                                     />
+                                    {errorFields.start_date && (
+                                        <Form.Text className="text-danger">{errorFields.start_date}</Form.Text>
+                                    )}
                                 </Form.Group>
                             </Col>
-                            <Col md={6}>
+                            <Col sm={12} md={6}>
                                 <Form.Group>
                                     <Form.Label>End Date</Form.Label>
                                     <Form.Control
                                         type="date"
                                         onChange={handleChange}
                                         name='end_date'
-                                        isInvalid={missingFields.includes('end_date')}
+                                        isInvalid={!!errorFields.end_date}
                                         value={job.end_date}
+                                        min={getLocalTodayDate()}
                                     />
+                                    {errorFields.end_date && (
+                                        <Form.Text className="text-danger">{errorFields.end_date}</Form.Text>
+                                    )}
                                 </Form.Group>
                             </Col>
                         </Row>
 
                         <Form.Label>Run Schedule</Form.Label>
-                        <Row className="pb-3">
+                        <Row className="pb-3 gy-3">
                             <Col md={2}>
                                 <Form.Group>
                                     <Form.Label>Every:</Form.Label>
@@ -172,9 +193,18 @@ export const Job = () => {
                                         type="number"
                                         onChange={handleChange}
                                         name='interval'
-                                        isInvalid={missingFields.includes('interval')}
+                                        isInvalid={!!errorFields.interval}
                                         value={job.interval || ''}
+                                        min={1}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'e' || e.key === 'E' || e.key === '.' || e.key === '-') {
+                                                e.preventDefault();
+                                            }
+                                        }}
                                     />
+                                    {errorFields.interval && (
+                                        <Form.Text className="text-danger">{errorFields.interval}</Form.Text>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col md={2}>
@@ -184,7 +214,7 @@ export const Job = () => {
                                         style={{ textTransform: 'capitalize' }}
                                         aria-label="Default select example"
                                         name='time_unit'
-                                        isInvalid={missingFields.includes('time_unit')}
+                                        isInvalid={!!errorFields.time_unit}
                                         value={job.time_unit}
                                         onChange={handleChange}
                                     >
@@ -192,18 +222,26 @@ export const Job = () => {
                                             <option key={x.unit} value={x.unit}>{x.unit}</option>
                                         ))}
                                     </Form.Select>
+                                    {errorFields.time_unit && (
+                                        <Form.Text className="text-danger">{errorFields.time_unit}</Form.Text>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col md={2}>
                                 <Form.Group>
                                     <Form.Label>At:</Form.Label>
                                     <Form.Control
-                                        placeholder={job.specific_time}
+                                        placeholder={
+                                            time_units.find((time) => time.unit === job.time_unit)?.time_str || 'Enter time'
+                                        }
                                         onChange={handleChange}
                                         name='specific_time'
-                                        isInvalid={missingFields.includes('specific_time')}
+                                        isInvalid={!!errorFields.specific_time}
                                         value={job.specific_time}
                                     />
+                                    {errorFields.specific_time && (
+                                        <Form.Text className="text-danger">{errorFields.specific_time}</Form.Text>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col md={4}>
@@ -213,7 +251,7 @@ export const Job = () => {
                                         aria-label="Default select example"
                                         onChange={handleChange}
                                         name='automation_id'
-                                        isInvalid={missingFields.includes('automation_id')}
+                                        isInvalid={!!errorFields.automation_id}
                                         value={job.automation_id}
                                         disabled={loading || automations.length === 0} // Disable until automations load
                                     >
@@ -225,6 +263,9 @@ export const Job = () => {
                                         ))}
                                     </Form.Select>
                                     {error && <p className="text-danger">{error}</p>}
+                                    {errorFields.automation_id && (
+                                        <Form.Text className="text-danger">{errorFields.automation_id}</Form.Text>
+                                    )}
                                 </Form.Group>
                             </Col>
                             <Col md={2}>
@@ -234,18 +275,21 @@ export const Job = () => {
                                         aria-label="Default select example"
                                         onChange={handleChange}
                                         name='continuous'
-                                        isInvalid={missingFields.includes('continuous')}
+                                        isInvalid={!!errorFields.continuous}
                                         value={job.continuous}
                                     >
                                         <option value={0}>Criteria Met</option>
                                         <option value={1}>End Date Reached</option>
                                     </Form.Select>
+                                    {errorFields.continuous && (
+                                        <Form.Text className="text-danger">{errorFields.continuous}</Form.Text>
+                                    )}
                                 </Form.Group>
                             </Col>
                         </Row>
                     </Form>
                 </Card.Body>
-                <Card.Footer>
+                <Card.Footer className="mb-4"> {/* Added mb-4 for extra space below the footer */}
                     <Footer validate={handleContinue} />
                 </Card.Footer>
             </Card>

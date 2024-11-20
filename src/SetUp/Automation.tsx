@@ -1,4 +1,4 @@
-import { findMissingFields } from '../constants/utils'; // Import the utility function
+import { findErrorFields, getLocalTodayDate } from '../constants/utils'; // Import the utility function
 import { Header } from "./Header";
 import { Footer } from './Footer';
 
@@ -23,9 +23,9 @@ export const Automation = () => {
 
     // Check if job is empty and navigate back to /setup/schedule to set up the schedule
     useEffect(() => {
-        const missingFields = findMissingFields(job)
-        if (missingFields.length > 0) {
-            console.error("Unable to proceed: Missing the following fields from the build scheduler page", missingFields)
+        const errorFields = findErrorFields(job)
+        if (errorFields.length > 0) {
+            console.error("Unable to proceed: Missing the following fields from the build scheduler page", errorFields)
             navigate('/setup/schedule'); // Redirect to the schedule page if arguments are empty
         }
     }, [job, navigate]);
@@ -63,21 +63,25 @@ export const Automation = () => {
         dispatch(setJob({ arguments: { ...job.arguments, [name]: value } }));
     };
 
-    // State to track missing fields
-    const [missingFields, setMissingFields] = useState<string[]>([]);
+    // State to track error fields
+    const [errorFields, setErrorFields] = useState<Record<string, string>>({});
 
     // Prevent continue if any fields are missing
     const handleContinue = (preventContinue: React.Dispatch<React.SetStateAction<boolean>>) => {
-        const missingFields = findMissingFields(job.arguments)
+        const errors = findErrorFields(job.arguments);
 
-        if (missingFields.length > 0) {
+        if (errors.length > 0) {
             preventContinue(true);
-            setMissingFields(missingFields); // Update missing fields state
+            const errorMessages = errors.reduce((acc, { key, errorMessage }) => {
+                acc[key] = errorMessage;
+                return acc;
+            }, {} as Record<string, string>);
+            setErrorFields(errorMessages); // Update state with error messages
             return;
         }
 
         preventContinue(false);
-        setMissingFields([]); // Clear missing fields state when there are no missed fields
+        setErrorFields({}); // Clear error messages when there are no issues
     };
 
     return (
@@ -103,11 +107,23 @@ export const Automation = () => {
                                                 <Form.Control
                                                     placeholder={type === 'number' ? `Enter # of ${field}` : `Enter ${field}`}
                                                     name={field}
-                                                    isInvalid={missingFields.includes(field)}
+                                                    isInvalid={!!errorFields[field]} // Corrected validation check
                                                     onChange={handleChange}
                                                     type={type as "text" | "number" | "date"}
                                                     value={job.arguments[field] || ''}
+                                                    // Apply min={0} for 'number' and min={today's date} for 'date' in the correct format
+                                                    {...(type === 'number' && { min: 0 })}
+                                                    {...(type === 'date' && { min: getLocalTodayDate() })} // Correct usage
+                                                    onKeyDown={(e) => {
+                                                        // Prevent invalid characters only for 'number' type
+                                                        if (type === 'number' && (e.key === 'e' || e.key === 'E' || e.key === '.' || e.key === '-')) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }}
                                                 />
+                                                {errorFields[field] && (
+                                                    <Form.Text className="text-danger">{errorFields[field]}</Form.Text>
+                                                )}
                                             </Form.Group>
                                         </Col>
                                     </Row>
@@ -121,7 +137,7 @@ export const Automation = () => {
                         </Row>
                     </Form>
                 </Card.Body>
-                <Card.Footer>
+                <Card.Footer className="mb-4"> {/* Added mb-4 for extra space below the footer */}
                     <Footer validate={handleContinue} />
                 </Card.Footer>
             </Card>

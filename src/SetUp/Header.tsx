@@ -8,39 +8,54 @@ export const Header = () => {
   const currentPage = useLocation().pathname;
 
   return (
-    <Navbar expand="lg">
+    <Navbar>
       <Container fluid>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="me-auto">
-            <LinkContainer to="/setup/schedule">
-              <Nav.Link className={currentPage === '/setup/schedule' ? 'nav-link active' : 'nav-link'}>
-                Build Scheduler
+        {/* Wrapper div to control alignment */}
+        <div className="d-flex justify-content-center justify-content-md-start w-100">
+          <Nav>
+            {/* Build Scheduler */}
+            <Nav.Link
+              className={currentPage === '/setup/schedule' ? 'nav-link active' : 'nav-link'}
+              style={{ pointerEvents: 'none', cursor: 'default' }}
+            >
+              <span className="d-none d-md-inline">Build Scheduler</span> {/* Full text on md and up */}
+              <span className="d-inline d-md-none">Build</span> {/* Short text on small screens */}
+            </Nav.Link>
+
+            {/* Separator */}
+            <LinkContainer to="/setup/backroom" style={{ cursor: 'default', opacity: 0.5 }}>
+              <Nav.Link className={currentPage === '/setup/backrooms' ? 'nav-link active' : 'nav-link'}>
+                {">>"}
               </Nav.Link>
             </LinkContainer>
-            <LinkContainer to="/setup/backroom">
-              <Nav.Link className={currentPage === '/setup/backroom' ? 'nav-link active' : 'nav-link'}>
-                |
+
+            {/* Configure Automation Settings */}
+            <Nav.Link
+              className={currentPage === '/setup/automation' ? 'nav-link active' : 'nav-link'}
+              style={{ pointerEvents: 'none', cursor: 'default' }}
+            >
+              <span className="d-none d-md-inline">Configure Automation Settings</span> {/* Full text on md and up */}
+              <span className="d-inline d-md-none">Configure</span> {/* Short text on small screens */}
+            </Nav.Link>
+
+            {/* Separator */}
+            <LinkContainer to="/setup/backroom" style={{ cursor: 'default', opacity: 0.5 }}>
+              <Nav.Link className={currentPage === '/setup/backrooms' ? 'nav-link active' : 'nav-link'}>
+                {">>"}
               </Nav.Link>
             </LinkContainer>
-            <LinkContainer to="/setup/automation">
-              <Nav.Link className={currentPage === '/setup/automation' ? 'nav-link active' : 'nav-link'}>
-                Configure Automation Settings
-              </Nav.Link>
-            </LinkContainer>
-            <LinkContainer to="/setup/backroom">
-              <Nav.Link className={currentPage === '/setup/backroom' ? 'nav-link active' : 'nav-link'}>
-                |
-              </Nav.Link>
-            </LinkContainer>
-            <LinkContainer to="/setup/review">
-              <Nav.Link className={currentPage === '/setup/review' ? 'nav-link active' : 'nav-link'}>
-                Review Automation Schedule
-              </Nav.Link>
-            </LinkContainer>
+
+            {/* Review Automation Schedule */}
+            <Nav.Link
+              className={currentPage === '/setup/review' ? 'nav-link active' : 'nav-link'}
+              style={{ pointerEvents: 'none', cursor: 'default' }}
+            >
+              <span className="d-none d-md-inline">Review Automation Schedule</span> {/* Full text on md and up */}
+              <span className="d-inline d-md-none">Review</span> {/* Short text on small screens */}
+            </Nav.Link>
           </Nav>
-        </Navbar.Collapse>
+        </div>
       </Container>
     </Navbar>
-  )
-}
+  );
+};

@@ -1,4 +1,4 @@
-import { findMissingFields } from '../constants/utils'; // Import the utility function
+import { findErrorFields } from '../constants/utils'; // Import the utility function
 import { Header } from "./Header";
 import { Footer } from './Footer';
 import { Summary } from './Summary';
@@ -22,10 +22,10 @@ export const Review = () => {
 
     // Check if job.arguments is empty and navigate back to /setup/automation
     useEffect(() => {
-        const missingScheduleFields = findMissingFields(job);
-        const missingArgumentsFields = findMissingFields(job.arguments);
-        if (missingScheduleFields.length > 0 || missingArgumentsFields.length > 0) {
-            console.error("Unable to proceed: Missing the fields from the following:", '\nbuild scheduler page', missingScheduleFields, '\nconfigure automation settings page', missingArgumentsFields)
+        const errorScheduleFields = findErrorFields(job);
+        const errorArgumentsFields = findErrorFields(job.arguments);
+        if (errorScheduleFields.length > 0 || errorArgumentsFields.length > 0) {
+            console.error("Unable to proceed: Missing the fields from the following:", '\nbuild scheduler page', errorScheduleFields, '\nconfigure automation settings page', errorArgumentsFields)
             navigate('/setup/automation'); // Redirect to the schedule page if arguments are empty
         }
     }, [job, navigate]);
@@ -38,8 +38,8 @@ export const Review = () => {
     // Prevent continue if any fields are missing
     const handleReview = (preventContinue: React.Dispatch<React.SetStateAction<boolean>>) => {
         // Function to find missing fields in an object
-        const missingScheduleFields = findMissingFields(job);
-        const missingArgumentsFields = findMissingFields(job.arguments);
+        const missingScheduleFields = findErrorFields(job);
+        const missingArgumentsFields = findErrorFields(job.arguments);
 
         if (missingScheduleFields.length > 0 || missingArgumentsFields.length > 0) {
             preventContinue(true);
@@ -113,7 +113,7 @@ export const Review = () => {
                     {error && <p className="text-danger text-center mt-3">{error}</p>}
                     <Summary show={modalShow} setModalShow={setModalShow} />
                 </Card.Body>
-                <Card.Footer>
+                <Card.Footer className="mb-4"> {/* Added mb-4 for extra space below the footer */}
                     <Footer validate={handleReview} />
                 </Card.Footer>
             </Card>

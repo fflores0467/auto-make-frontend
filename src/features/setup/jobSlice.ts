@@ -15,7 +15,7 @@ const jobSlice = createSlice({
     end_date,
     interval: 5,
     time_unit: 'minutes',
-    specific_time: ':00',
+    specific_time: '',
     automation_id: -1,
     continuous: 0,
     arguments: {}
@@ -32,7 +32,7 @@ const jobSlice = createSlice({
       state.end_date = end_date;
       state.interval = 5;
       state.time_unit = 'minutes';
-      state.specific_time = ':00';
+      state.specific_time = '';
       state.automation_id = -1;
       state.continuous = 0;
       state.arguments = {};

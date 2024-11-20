@@ -62,13 +62,13 @@ export const SaveButton: React.FC<{
                 parameters: JSON.parse(job.arguments) // Or job.automation.parameters if you need the structure from `parameters`
             };
 
-            const findMissingFields = (obj: Record<string, any>) =>
+            const findErrorFields = (obj: Record<string, any>) =>
                 Object.entries(obj)
                     .filter(([key, value]) => value === null || value === undefined || value === "" || value < 0)
                     .map(([key]) => key); // Return the keys of missing fields
 
-            const missingFields = findMissingFields(updatePayload);
-            const missingParameters = findMissingFields(updatePayload.parameters);
+            const missingFields = findErrorFields(updatePayload);
+            const missingParameters = findErrorFields(updatePayload.parameters);
 
             if (job.user_id < 1) {
                 setError('Your session has expired or your user ID is invalid. Please log in again.');
