@@ -1,3 +1,10 @@
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+// Extend dayjs with customParseFormat for parsing specific date formats
+dayjs.extend(customParseFormat);
+
+// Helper function to get today's date in YYYY-MM-DD format
 export const getLocalTodayDate = () => {
     const today = new Date();
     const year = today.getFullYear();
@@ -6,6 +13,22 @@ export const getLocalTodayDate = () => {
     return `${year}-${month}-${day}`; // Return in YYYY-MM-DD format
 };
 
+// Function to check if a string is a valid date in one of the specified formats
+function isDate(input: string): boolean {
+    // List of date formats to check against
+    const formats = [
+        'YYYY-MM-DD',
+        'DD/MM/YYYY',
+        'MM/DD/YYYY',
+        'MMMM D, YYYY',
+        // Add more formats as needed
+    ];
+
+    // Check if the input matches any of the formats
+    return formats.some(format => dayjs(input, format, true).isValid());
+}
+
+// Function to find error fields in an object
 export const findErrorFields = (obj: Record<string, any>) => {
     const timeUnits = [
         { unit: "minutes", regex: /^:\d{2}$/ },
@@ -16,6 +39,7 @@ export const findErrorFields = (obj: Record<string, any>) => {
     const errors: { key: string; errorMessage: string }[] = [];
 
     Object.entries(obj).forEach(([key, value]) => {
+        // Validate specific_time format based on the time unit
         if (key === "specific_time") {
             const timeUnit = timeUnits.find(time => time.unit === obj.time_unit);
             if (timeUnit && !timeUnit.regex.test(value)) {
@@ -24,7 +48,7 @@ export const findErrorFields = (obj: Record<string, any>) => {
             return; // Skip further checks for specific_time
         }
 
-        // Dropdown values
+        // Validate dropdown values (must be non-negative)
         if (key === 'time_unit' || key === 'automation_id' || key === 'continuous') {
             if (value < 0) {
                 errors.push({ key, errorMessage: "A value must be selected" });
@@ -38,20 +62,17 @@ export const findErrorFields = (obj: Record<string, any>) => {
             return;
         }
 
-        // Convert value to number if it is a string representing a number
+        // Check for negative numbers
         const numericValue = typeof value === "string" ? Number(value) : value;
         if (typeof numericValue === "number" && numericValue < 0) {
             errors.push({ key, errorMessage: "The value cannot be negative." });
             return;
         }
 
-        // Check for valid date strings only (ignore numeric strings like "0")
-        if (typeof value === "string" && isNaN(Number(value)) && !isNaN(Date.parse(value))) {
+        // Validate date strings and check if the date is in the past
+        if (isDate(value)) {
             const dateValue = new Date(value);
-
-            // Get today's date in YYYY-MM-DD format using your local date function
-            const todayString = getLocalTodayDate();
-            const today = new Date(todayString);
+            const today = new Date(getLocalTodayDate());
 
             today.setHours(0, 0, 0, 0); // Set time to the start of the day
 
@@ -59,7 +80,6 @@ export const findErrorFields = (obj: Record<string, any>) => {
                 errors.push({ key, errorMessage: "The date cannot be in the past." });
             }
         }
-
     });
 
     return errors;

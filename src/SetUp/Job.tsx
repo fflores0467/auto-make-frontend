@@ -160,6 +160,7 @@ export const Job = () => {
                                         isInvalid={!!errorFields.start_date}
                                         value={job.start_date}
                                         min={getLocalTodayDate()}
+                                        onKeyDown={(e) => e.preventDefault()} // Prevent typing in the date input
                                     />
                                     {errorFields.start_date && (
                                         <Form.Text className="text-danger">{errorFields.start_date}</Form.Text>
@@ -176,6 +177,7 @@ export const Job = () => {
                                         isInvalid={!!errorFields.end_date}
                                         value={job.end_date}
                                         min={getLocalTodayDate()}
+                                        onKeyDown={(e) => e.preventDefault()} // Prevent typing in the date input
                                     />
                                     {errorFields.end_date && (
                                         <Form.Text className="text-danger">{errorFields.end_date}</Form.Text>

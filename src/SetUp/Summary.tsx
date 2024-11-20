@@ -33,6 +33,10 @@ export const Summary = ({ show, setModalShow }: { show: boolean; setModalShow: (
         setError("");
         setLoading(true)
         try {
+            if (user.id < 0) {
+                setError('Please Sign In.');
+                return;
+            }
             const body = {
                 name: job.name,
                 start_date: job.start_date,

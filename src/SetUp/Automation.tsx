@@ -112,8 +112,8 @@ export const Automation = () => {
                                                     type={type as "text" | "number" | "date"}
                                                     value={job.arguments[field] || ''}
                                                     // Apply min={0} for 'number' and min={today's date} for 'date' in the correct format
-                                                    {...(type === 'number' && { min: 0 })}
-                                                    {...(type === 'date' && { min: getLocalTodayDate() })} // Correct usage
+                                                    {...(type === 'number' ? { min: 0 } : {})}
+                                                    {...(type === 'date' ? { min: getLocalTodayDate(), onKeyDown: (e) => e.preventDefault() } : {})}
                                                     onKeyDown={(e) => {
                                                         // Prevent invalid characters only for 'number' type
                                                         if (type === 'number' && (e.key === 'e' || e.key === 'E' || e.key === '.' || e.key === '-')) {
