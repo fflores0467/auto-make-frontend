@@ -82,5 +82,15 @@ export const findErrorFields = (obj: Record<string, any>) => {
         }
     });
 
+    // Check that end_date is not before start_date (outside the loop)
+    if (isDate(obj.start_date) && isDate(obj.end_date)) {
+        const startDate = new Date(obj.start_date);
+        const endDate = new Date(obj.end_date);
+
+        if (endDate < startDate) {
+            errors.push({ key: 'end_date', errorMessage: "The end date cannot be before the start date." });
+        }
+    }
+
     return errors;
 };
