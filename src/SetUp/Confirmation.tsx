@@ -1,12 +1,10 @@
-import { findErrorFields } from '../constants/utils'; // Import the utility function
 import { Header } from "./Header";
 import { Footer } from './Footer';
 
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState, AppDispatch } from '../store';
+import { useDispatch } from 'react-redux';
+import type { AppDispatch } from '../store';
 import { clearJob } from '../features/setup/jobSlice';
 import { clearAutomation } from '../features/setup/automationSlice';
 
