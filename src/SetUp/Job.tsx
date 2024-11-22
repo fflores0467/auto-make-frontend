@@ -1,5 +1,5 @@
 import { findErrorFields, getLocalTodayDate } from '../constants/utils'; // Import the utility function
-import { useFetchAutomations } from "../hooks/useFetchAutomations";
+import { useFetchAutomations } from "../hooks/apiHooks"
 
 import { Header } from './Header';
 import { Footer } from './Footer';
@@ -32,7 +32,7 @@ const time_units: TimeUnit[] = [
 export const Job = () => {
     const dispatch = useDispatch<AppDispatch>();
     const job = useSelector((state: RootState) => state.job);
-    const { automations, loading, error } = useFetchAutomations();
+    const { data: automations, loading, error } = useFetchAutomations();
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
