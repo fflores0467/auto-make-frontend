@@ -1,10 +1,10 @@
 import { findErrorFields, getLocalTodayDate } from '../constants/utils'; // Import the utility function
+import { useFetchAutomations } from "../hooks/useFetchAutomations";
+
 import { Header } from './Header';
 import { Footer } from './Footer';
-import { Automation } from '../constants/types';
 
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux'
 import type { RootState, AppDispatch } from '../store'
@@ -16,8 +16,6 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Card from 'react-bootstrap/Card';
-
-const baseUrl = process.env.REACT_APP_API_BASE_URL;
 
 type TimeUnit = {
     unit: string,
@@ -34,28 +32,7 @@ const time_units: TimeUnit[] = [
 export const Job = () => {
     const dispatch = useDispatch<AppDispatch>();
     const job = useSelector((state: RootState) => state.job);
-
-    const [automations, setAutomations] = useState<Automation[]>([]); // For the dropdown
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-
-    // Fetch all automations when component mounts
-    useEffect(() => {
-        const fetchAutomations = async () => {
-            try {
-                const response = await axios.get(`${baseUrl}/read-automation`);
-                setAutomations(response.data.data);
-                setError('');
-            } catch (err) {
-                console.error('Error fetching automations:', err);
-                setError('Failed to load automations.');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchAutomations();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    const { automations, loading, error } = useFetchAutomations();
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
