@@ -1,9 +1,14 @@
+import { useFetchAutomations, useFetchJobs } from "../hooks/apiHooks";
 import { Loading } from '../components/Loading'
 import { Header } from '../components/BasicHeader'
-import { Edit } from './Edit';
+
 import { View } from './View';
-import { DeleteButton } from './DeleteCancel';
-import { SaveButton } from './SaveEdit';
+import { Edit } from './Edit';
+import { SaveButton } from './SaveButton';
+import { EditButton } from './EditButton';
+import { CancelButton } from './CancelButton';
+import { DeleteButton } from './DeleteButton';
+
 
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
@@ -18,114 +23,63 @@ import Col from 'react-bootstrap/Col';
 const baseUrl = process.env.REACT_APP_API_BASE_URL;
 
 export const Manage = () => {
-    const user = useSelector((state: RootState) => state.user);
+    const { data: jobs, loading: jobsLoading, error: jobsError } = useFetchJobs();
+    const { data: automations, loading: automationsLoading, error: automationsError } = useFetchAutomations();
 
-    type Job = {
-        id: number;
-        name: string;
-        start_date: string;
-        end_date: string;
-        interval: number;
-        time_unit: string;
-        specific_time: string;
-        automation_id: number;
-        user_id: number;
-        continuous: number;
-        arguments: string;
-        automation: { name: string, parameters: string };
+    const [jobEdit, setJobEdit] = useState<number>(-1);
+    const [loading, setLoading] = useState(false);
+
+    // Helper to get automation name from automation ID
+    const getAutomationNameById = (automation_id: number): string => {
+        const automation = automations?.find((a) => a.id === automation_id);
+        return automation ? automation.name : 'Unknown Automation';
     };
 
-    const [jobs, setJobs] = useState<Job[]>([]);
-    const [edit, setEdit] = useState<number>(0);
-    const [success, setSuccess] = useState<string>('');
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        const fetchJobsAndAutomations = async () => {
-            try {
-                const jobsResponse = await axios.get(`${baseUrl}/read-job`);
-                const jobsData = jobsResponse.data.data;
-                const jobs = await Promise.all(
-                    jobsData.map(async (job: Job) => {
-                        const automationsResponse = await axios.get(`${baseUrl}/read-automation`, {
-                            params: { id: encodeURIComponent(job.automation_id) },
-                        });
-                        const automation = automationsResponse.data;
-
-                        return {
-                            ...job,
-                            user_id: user.id,
-                            automation: { name: automation.data.name, parameters: automation.data.parameters },
-                        };
-                    })
-                );
-                setJobs(jobs);
-            } catch (err) {
-                console.error('Error fetching jobs or automations:', err);
-                setError('Failed to load automation schedules.');
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchJobsAndAutomations();
-    }, [edit, success, user.id]);
-
-    // Function to handle updates to a job's details
-    const handleJobUpdate = (job_id: number, updatedFields: Partial<Job>) => {
-        setJobs(prevJobs =>
-            prevJobs.map(job => job.id === job_id ? { ...job, ...updatedFields } : job)
-        );
-    };
-
-    if (loading) {
-        return (
-            <Loading Header={<Header title={"Manage Automation Schedules"} />}></Loading>
-        );
+    if (jobsLoading || automationsLoading) {
+        return <Loading Header={<Header title={"Manage Automation Schedules"} />} />;
     }
 
-    const borderType = error ? 'danger' : success ? 'success' : 'secondary';
     return (
-        <Container fluid className='pt-3'>
+        <Container fluid className="pt-3">
             <Card border={'dark'}>
                 <Card.Header>
                     <Header title={"Manage Automation Schedules"} />
                 </Card.Header>
                 <Card.Body>
-                    {(error || success) && (
-                        <Card.Body>
-                            <Card border={borderType}>
-                                <Card.Body>
-                                    <Card.Title>{error ? 'Unable to Proceed' : 'Success!'}</Card.Title>
-                                    <Card.Text>{error || success}</Card.Text>
-                                </Card.Body>
-                            </Card>
-                        </Card.Body>
-                    )}
                     {jobs.length > 0 ? (
                         jobs.map((job) => (
                             <React.Fragment key={job.id}>
-                                <Card border='secondary'>
+                                <Card border="secondary">
                                     <Card.Header as="h5">{job.name}</Card.Header>
                                     <Card.Body>
                                         <Row>
-                                            {/* Edit and View page on Left Side */}
+                                            {/* Edit or View Component */}
                                             <Col md={10}>
-                                                {edit === job.id ?
+                                                {jobEdit === job.id ? (
                                                     <Edit
                                                         job={job}
-                                                        handleJobUpdate={handleJobUpdate} // Pass handler to Edit
                                                     />
-                                                    :
-                                                    <View job={job} />
-                                                }
+                                                ) : (
+                                                    <View
+                                                        job={job}
+                                                        automation_name={getAutomationNameById(job.automation_id)}
+                                                    />
+                                                )}
                                             </Col>
-                                            {/* Buttons on Right Side */}
+                                            {/* Buttons */}
                                             <Col style={{ alignContent: 'center' }} md={2} className="border-start ps-3">
                                                 <Row>
-                                                    <SaveButton job={job} edit={edit} setStates={[setSuccess, setError, setEdit]} />
-                                                    <DeleteButton job_id={job.id} edit={edit} setStates={[setSuccess, setError, setEdit]} />
+                                                    {jobEdit === job.id ? (
+                                                        <>
+                                                            <SaveButton job={job} onClick={setJobEdit} />
+                                                            <CancelButton onClick={setJobEdit} />
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <EditButton job={job} onClick={setJobEdit} />
+                                                            <DeleteButton job={job} />
+                                                        </>
+                                                    )}
                                                 </Row>
                                             </Col>
                                         </Row>
@@ -144,3 +98,4 @@ export const Manage = () => {
         </Container>
     );
 };
+
