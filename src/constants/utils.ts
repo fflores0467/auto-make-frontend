@@ -94,3 +94,20 @@ export const findErrorFields = (obj: Record<string, any>) => {
 
     return errors;
 };
+
+// Parse job argument as Job type expects Record<string, string>, but the actual type from the api is a string
+export const parseJobArguments = (argumentsData: string | Record<string, any>): Record<string, any> => {
+    let parsedArguments: Record<string, any> = {};
+
+    try {
+        parsedArguments = typeof argumentsData === 'string' ? JSON.parse(argumentsData) : argumentsData;
+        if (typeof parsedArguments !== 'object' || parsedArguments === null) {
+            parsedArguments = {}; // Ensure it's an object
+        }
+    } catch (error) {
+        console.error('Failed to parse job arguments:', error);
+        parsedArguments = {}; // Fallback to an empty object
+    }
+
+    return parsedArguments;
+};

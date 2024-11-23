@@ -8,6 +8,7 @@ export type Automation = {
 
 // Structure for Job items, this is what is going to the DB
 export type Job = {
+    id: number
     name: string;
     start_date: string;
     end_date: string;
@@ -19,3 +20,23 @@ export type Job = {
     active: number
     arguments: Record<string, string>
 }
+
+type Criteria = {
+    field: {
+        name: string;
+        type: string;
+        options: string[];
+    };
+};
+
+type TimeUnit = {
+    unit: string,
+    time_str: string
+}
+
+// Time unit options
+export const time_units: TimeUnit[] = [
+    { unit: "minutes", time_str: ":SS" },
+    { unit: "hours", time_str: "MM:SS || :MM" },
+    { unit: "days", time_str: "HH:MM:SS || HH:MM" }
+];

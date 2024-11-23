@@ -38,25 +38,6 @@ export const Automation = () => {
         }
     }, [automation.parameters]);
 
-    type Criteria = {
-        field: {
-            name: string;
-            type: string;
-            options: string[];
-        };
-    };
-
-    // settings schema from the database, stored in state for user input boxes
-    const [settings, setSettings] = useState({
-        message: "",
-        data: {
-            automation_id: 0,
-            name: '',
-            parameters: {} as Record<string, string>,
-            criteria: {} as Criteria
-        }
-    });
-
     // Dispatch automation state in redux to keep data globally
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
