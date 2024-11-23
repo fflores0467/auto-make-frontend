@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Job, time_units } from "../constants/types";
-import { findErrorFields, getLocalTodayDate, parseJobArguments } from '../constants/utils'; // Import utility functions
+import { findErrorFields, getLocalTodayDate, parseJobArguments, parseAutomationParameters } from '../constants/utils'; // Import utility functions
 import { useFetchAutomations } from "../hooks/apiHooks";
 
 import Form from 'react-bootstrap/Form';
@@ -8,26 +8,52 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
 export const Edit: React.FC<{ job: Job; }> = ({ job }) => {
-    const job_arguments = useMemo(() => parseJobArguments(job.arguments), [job.arguments]);
+    // Parse the job arguments initially to ensure they are usable in the form.
+    const initialArguments = useMemo(() => parseJobArguments(job.arguments), [job.arguments]);
+
+    // Fetch available automations data and handle loading or errors.
     const { data: automations, loading, error } = useFetchAutomations();
-    const [editedJob, setEditedJob] = useState<Job>(job);
+
+    // Store the editable job state, initialized with parsed arguments.
+    const [editedJob, setEditedJob] = useState<Job>({
+        ...job,
+        arguments: initialArguments,
+    });
+
+    // Memoized selected automation based on the `automation_id` of the edited job.
+    const automation = useMemo(() => {
+        if (!automations || editedJob.automation_id === undefined) {
+            return { parameters: '{}' }; // Fallback to an object with an empty parameters property.
+        }
+        return automations.find((automation) => automation.id === editedJob.automation_id) || { parameters: '{}' };
+    }, [automations, editedJob.automation_id]);
+
+    // Parse the parameters of the selected automation to dynamically display input fields.
+    const automationParameters = useMemo(() => parseAutomationParameters(automation.parameters), [automation.parameters]);
+
     const [errorFields, setErrorFields] = useState<Record<string, string>>({});
 
     // Handle form changes
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
 
-        if (name === 'automation_id') {
+        setEditedJob((prev) => {
+            // Update arguments if the field exists in parsed parameters
+            if (Object.keys(automationParameters).includes(name)) {
+                const updatedArguments = { ...prev.arguments, [name]: value };
+                return { ...prev, arguments: updatedArguments };
+            }
 
-        }
+            // Otherwise, update other job fields
+            return {
+                ...prev,
+                [name]: name === "interval" || name === "automation_id" || name === "continuous"
+                    ? parseInt(value, 10)
+                    : value,
+            };
+        });
+    }
 
-        setEditedJob((prev) => ({
-            ...prev,
-            [name]: name === 'interval' || name === 'automation_id' || name === 'continuous'
-                ? parseInt(value, 10)
-                : value,
-        }));
-    };
     return (
         <Form>
             {/* Schedule Details */}
@@ -182,7 +208,7 @@ export const Edit: React.FC<{ job: Job; }> = ({ job }) => {
             </Row>
 
             <Row className="gy-3 pb-3">
-                {Object.entries(job_arguments).map(([field, type]) => (
+                {Object.entries(automationParameters).map(([field, type]) => (
                     <Col key={field} xs={12} md="auto">
                         <Form.Group>
                             <Form.Label style={{ textTransform: 'capitalize' }}>{field}</Form.Label>
@@ -192,7 +218,7 @@ export const Edit: React.FC<{ job: Job; }> = ({ job }) => {
                                 isInvalid={!!errorFields[field]} // Corrected validation check
                                 onChange={handleChange}
                                 type={type as "text" | "number" | "date"}
-                                value={job_arguments[field] || ''}
+                                value={editedJob.arguments[field] || ''}
                                 // Apply min={0} for 'number' and min={today's date} for 'date' in the correct format
                                 {...(type === 'number' ? { min: 0 } : {})}
                                 {...(type === 'date' ? { min: getLocalTodayDate(), onKeyDown: (e) => e.preventDefault() } : {})}
