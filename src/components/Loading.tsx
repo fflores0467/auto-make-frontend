@@ -4,13 +4,13 @@ import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 import Spinner from 'react-bootstrap/Spinner';
 
-export const Loading: React.FC<{Header: React.ReactNode}> = ({ Header }) => {
+export const Loading: React.FC<{ Header: React.ReactNode }> = ({ Header }) => {
     return (
-        <Container fluid className='pt-3'>
-            <Card border={'dark'}>
+        <Container fluid className="pt-3">
+            <Card border="dark">
                 <Card.Header>{Header}</Card.Header>
                 <Card.Body>
-                    <Row className="justify-content-md-center">
+                    <Row className="justify-content-center mt-3">
                         <Spinner animation="border" role="status">
                             <span className="visually-hidden">Loading...</span>
                         </Spinner>
@@ -18,5 +18,5 @@ export const Loading: React.FC<{Header: React.ReactNode}> = ({ Header }) => {
                 </Card.Body>
             </Card>
         </Container>
-    )
-}
+    );
+};
