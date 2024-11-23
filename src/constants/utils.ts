@@ -111,3 +111,16 @@ export const parseJobArguments = (argumentsData: string | Record<string, any>): 
 
     return parsedArguments;
 };
+
+export const parseAutomationParameters = (parameters: string | undefined): Record<string, any> => {
+    if (!parameters) {
+        return {}; // Return empty object if parameters are undefined or null.
+    }
+
+    try {
+        return JSON.parse(parameters); // Safely parse JSON parameters.
+    } catch (err) {
+        console.error("Failed to parse automation parameters:", err);
+        return {}; // Return empty object on error.
+    }
+}

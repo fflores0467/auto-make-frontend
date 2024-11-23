@@ -1,4 +1,4 @@
-import { findErrorFields, getLocalTodayDate } from '../constants/utils'; // Import the utility function
+import { findErrorFields, getLocalTodayDate, parseAutomationParameters } from '../constants/utils'; // Import the utility function
 import { Header } from "./Header";
 import { Footer } from './Footer';
 
@@ -30,13 +30,7 @@ export const Automation = () => {
         }
     }, [job, navigate]);
 
-    const automationParameters = useMemo(() => {
-        if (automation.parameters) {
-            return JSON.parse(automation.parameters);
-        } else {
-            return {};
-        }
-    }, [automation.parameters]);
+    const automationParameters = useMemo(() => parseAutomationParameters(automation.parameters), [automation.parameters]);
 
     // Dispatch automation state in redux to keep data globally
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {

@@ -1,4 +1,4 @@
-import { findErrorFields, getLocalTodayDate } from '../constants/utils'; // Import the utility function
+import { findErrorFields, getLocalTodayDate, parseAutomationParameters } from '../constants/utils'; // Import the utility function
 import { useFetchAutomations } from "../hooks/apiHooks"
 
 import { Header } from './Header';
@@ -50,7 +50,7 @@ export const Job = () => {
                 dispatch(setAutomation(automation)); // Set the newly found automation in the store
 
                 // Initialize automation parameters with empty strings into job.arguments
-                const automationParameters = JSON.parse(automation.parameters);
+                const automationParameters = parseAutomationParameters(automation.parameters);
                 // If job.arguments is empty, initialize it with default values from automation.parameters
                 if (Object.keys(job.arguments).length === 0) {
                     // Use automation.parameters to generate initialArguments with default empty strings
