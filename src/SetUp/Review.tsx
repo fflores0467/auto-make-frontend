@@ -1,7 +1,7 @@
 import { findErrorFields } from '../constants/utils'; // Import the utility function
 import { Header } from "./Header";
 import { Footer } from './Footer';
-import { Summary } from './Summary';
+import { Summary } from '../components/Summary';
 
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -111,7 +111,7 @@ export const Review = () => {
                     </Row>
 
                     {error && <p className="text-danger text-center mt-3">{error}</p>}
-                    <Summary show={modalShow} setModalShow={setModalShow} />
+                    <Summary show={modalShow} setModalShow={setModalShow} mode='create' />
                 </Card.Body>
                 <Card.Footer className="mb-4"> {/* Added mb-4 for extra space below the footer */}
                     <Footer validate={handleReview} />

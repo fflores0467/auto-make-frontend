@@ -5,7 +5,6 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { LinkContainer } from 'react-router-bootstrap';
-import { useLocation } from 'react-router-dom';
 
 export const Header = () => {
   const user = useSelector((state: RootState) => state.user);

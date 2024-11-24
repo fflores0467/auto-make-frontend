@@ -32,18 +32,6 @@ export const Home = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    if (!user.id) {
-        return (
-            <Container fluid className='pt-3'>
-                <Card border={'dark'}>
-                    <Card.Body>
-                        <span>Must Log In!</span>
-                    </Card.Body>
-                </Card>
-            </Container>
-        )
-    }
-
     return (
         <Container fluid className='pt-3'>
             <Card border={'dark'}>
