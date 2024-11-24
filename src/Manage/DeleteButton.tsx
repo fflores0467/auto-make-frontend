@@ -10,6 +10,7 @@ type DeleteButtonProps = {
 };
 
 export const DeleteButton: React.FC<DeleteButtonProps> = ({ job, onDelete }) => {
+    // TODO: Move Delete api call to hooks
     const handleDelete = async () => {
         if (window.confirm(`Are you sure you want to delete the job: ${job.name}?`)) {
             try {
