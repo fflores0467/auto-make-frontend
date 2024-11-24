@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { Dispatch, SetStateAction, useState, useEffect, useMemo } from 'react';
 import { Job, time_units } from "../constants/types";
 import { findErrorFields, getLocalTodayDate, parseJobArguments, parseAutomationParameters } from '../constants/utils'; // Import utility functions
 import { useFetchAutomations } from "../hooks/apiHooks";
@@ -7,14 +7,14 @@ import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-export const Edit: React.FC<{ job: Job; }> = ({ job }) => {
-    // Parse the job arguments initially to ensure they are usable in the form.
+export const Edit: React.FC<{ job: Job; onEdit: Dispatch<SetStateAction<Job | undefined>> }> = ({ job, onEdit }) => {
+    // Parse job arguments only once when the job prop changes since this come in as strings from the db
     const initialArguments = useMemo(() => parseJobArguments(job.arguments), [job.arguments]);
 
-    // Fetch available automations data and handle loading or errors.
     const { data: automations, loading, error } = useFetchAutomations();
+    const [errorFields, setErrorFields] = useState<Record<string, string>>({});
 
-    // Store the editable job state, initialized with parsed arguments.
+    // Local editable state for the job, parent job will be edited on form change via the useEffect
     const [editedJob, setEditedJob] = useState<Job>({
         ...job,
         arguments: initialArguments,
@@ -28,31 +28,54 @@ export const Edit: React.FC<{ job: Job; }> = ({ job }) => {
         return automations.find((automation) => automation.id === editedJob.automation_id) || { parameters: '{}' };
     }, [automations, editedJob.automation_id]);
 
-    // Parse the parameters of the selected automation to dynamically display input fields.
+    // Parse parameters of the selected automation to be used when showing parameter placeholders
     const automationParameters = useMemo(() => parseAutomationParameters(automation.parameters), [automation.parameters]);
 
-    const [errorFields, setErrorFields] = useState<Record<string, string>>({});
+    // Notify parent component of changes when `editedJob` updates
+    useEffect(() => {
+        onEdit(editedJob);
+    }, [editedJob, onEdit]); // local job edits will trigger onEdit
 
     // Handle form changes
     const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = event.target;
 
         setEditedJob((prev) => {
-            // Update arguments if the field exists in parsed parameters
-            if (Object.keys(automationParameters).includes(name)) {
-                const updatedArguments = { ...prev.arguments, [name]: value };
-                return { ...prev, arguments: updatedArguments };
+            const updatedJob = { ...prev };
+
+            // If automation drowndown changes, then new automation parameters must be populated in the Job data due to the change
+            if (name === "automation_id") {
+                const newAutomationId = parseInt(value, 10);
+
+                // Check if automation_id has changed
+                if (newAutomationId !== prev.automation_id) {
+                    const newAutomation = automations?.find((automation) => automation.id === newAutomationId);
+                    const newParameters = newAutomation
+                        ? parseAutomationParameters(newAutomation.parameters)
+                        : {};
+
+                    // Reset arguments based on new parameters
+                    updatedJob.arguments = Object.keys(newParameters).reduce((acc, key) => {
+                        acc[key] = ''; // Reset all arguments to empty for new parameters
+                        return acc;
+                    }, {} as Record<string, string>);
+                }
+
+                updatedJob.automation_id = newAutomationId;
+            } else if (Object.keys(automationParameters).includes(name)) {
+                // Update arguments if the field exists in parsed parameters
+                updatedJob.arguments = { ...prev.arguments, [name]: value };
+            } else {
+                // Update other fields in the job
+                (updatedJob as any)[name as keyof Job] =
+                    name === "interval" || name === "continuous"
+                        ? parseInt(value, 10)
+                        : value;
             }
 
-            // Otherwise, update other job fields
-            return {
-                ...prev,
-                [name]: name === "interval" || name === "automation_id" || name === "continuous"
-                    ? parseInt(value, 10)
-                    : value,
-            };
+            return updatedJob;
         });
-    }
+    };
 
     return (
         <Form>
@@ -147,7 +170,7 @@ export const Edit: React.FC<{ job: Job; }> = ({ job }) => {
                         <Form.Label>At</Form.Label>
                         <Form.Control
                             placeholder={
-                                time_units.find((time) => time.unit === editedJob.time_unit)?.time_str || 'Enter time'
+                                time_units.find((time) => time.unit === job.time_unit)?.time_str || 'Enter time'
                             }
                             onChange={handleChange}
                             name='specific_time'

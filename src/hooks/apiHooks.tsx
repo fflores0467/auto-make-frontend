@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Job, Automation } from "../constants/types";
 import axios from "axios";
 
@@ -7,30 +7,32 @@ export const useFetchData = <T,>(url: string) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get(url);
-                setData(response.data.data);
-                setError("");
-            } catch (err) {
-                if (axios.isAxiosError(err)) {
-                    setError(
-                        err.response?.data?.message ||
-                        "A server error occurred. Please try again later."
-                    );
-                } else {
-                    setError("An unknown error occurred.");
-                }
-                console.error("Error fetching data:", err);
-            } finally {
-                setLoading(false);
+    const fetchData = useCallback(async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get(url);
+            setData(response.data.data);
+            setError("");
+        } catch (err) {
+            if (axios.isAxiosError(err)) {
+                setError(
+                    err.response?.data?.message ||
+                    "A server error occurred. Please try again later."
+                );
+            } else {
+                setError("An unknown error occurred.");
             }
-        };
-        fetchData();
+            console.error("Error fetching data:", err);
+        } finally {
+            setLoading(false);
+        }
     }, [url]);
 
-    return { data, loading, error };
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    return { data, loading, error, refetch: fetchData };
 };
 
 const baseUrl = process.env.REACT_APP_API_BASE_URL;
@@ -42,4 +44,3 @@ export const useFetchAutomations = () => {
 export const useFetchJobs = () => {
     return useFetchData<Job>(`${baseUrl}/read-job`);
 };
-

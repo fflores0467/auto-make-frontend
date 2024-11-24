@@ -1,13 +1,20 @@
-import React, { Dispatch, SetStateAction } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
+import { Summary } from '../components/Summary';
 import { Job } from "../constants/types";
 
 import Button from 'react-bootstrap/Button';
 import { Save } from 'react-bootstrap-icons';
 
-export const SaveButton: React.FC<{ job: Job; onClick: Dispatch<SetStateAction<number>> }> = ({ job, onClick }) => {
+export const SaveButton: React.FC<{
+    job: Job | undefined;
+    automation_name: string;
+    onSave: Dispatch<SetStateAction<number>>;
+}> = ({ job, automation_name, onSave }) => {
     const handleSave = () => {
-        onClick(-1);
+        setModalShow(true);
     };
+
+    const [modalShow, setModalShow] = useState(false);
 
     return (
         <>
@@ -17,7 +24,9 @@ export const SaveButton: React.FC<{ job: Job; onClick: Dispatch<SetStateAction<n
                 onClick={handleSave}
             >
                 <Save /> Save
+
             </Button>
+            <Summary show={modalShow} setModalShow={setModalShow} job={job} automation_name={automation_name} mode='edit' onSuccess={onSave} />
         </>
     );
 };
