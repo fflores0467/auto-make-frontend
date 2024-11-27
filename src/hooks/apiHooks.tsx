@@ -6,7 +6,7 @@ const baseUrl = process.env.REACT_APP_API_BASE_URL;
 // Generic data fetching hook
 export const useFetchData = <T,>(url: string) => {
     const [data, setData] = useState<T[]>([]);
-    const [loading, setLoading] = useState(true); //TODO: Incorporate loading when deleting a job
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     const fetchData = useCallback(async () => {
