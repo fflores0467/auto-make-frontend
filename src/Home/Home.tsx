@@ -1,7 +1,7 @@
 import { Features } from './Features';
 import { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import type { RootState, AppDispatch } from '../store';
+import { useDispatch } from 'react-redux'; //, useSelector
+import type { AppDispatch } from '../store'; //, RootState
 import { setUserState } from '../features/login/userSlice';
 import Card from 'react-bootstrap/Card';
 import Container from 'react-bootstrap/Container';
@@ -15,7 +15,7 @@ const words = ['Welcome...', 'AutoMake'];
 export const Home = () => {
 
     const dispatch = useDispatch<AppDispatch>();
-    const user = useSelector((state: RootState) => state.user);
+    // const user = useSelector((state: RootState) => state.user);
 
     const [intro, setIntro] = useState('');
     const [fade, setFade] = useState(true);

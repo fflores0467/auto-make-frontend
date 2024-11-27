@@ -21,13 +21,13 @@ export type Job = {
     arguments: Record<string, string>
 }
 
-type Criteria = {
-    field: {
-        name: string;
-        type: string;
-        options: string[];
-    };
-};
+// type Criteria = {
+//     field: {
+//         name: string;
+//         type: string;
+//         options: string[];
+//     };
+// };
 
 type TimeUnit = {
     unit: string,
