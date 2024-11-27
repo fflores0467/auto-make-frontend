@@ -34,7 +34,7 @@ export const Header = () => {
             </LinkContainer>
 
             {/* Separator */}
-            <LinkContainer to="/setup/review">
+            <LinkContainer to="/setup/backroom">
               <Nav.Link style={{ opacity: 0.5 }}>
                 {">>"}
               </Nav.Link>
