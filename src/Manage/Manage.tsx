@@ -29,6 +29,7 @@ const ManageContent: React.FC<{ userId: number }> = ({ userId }) => {
     // Editing states
     const [currentlyEditingJobId, setCurrentlyEditingJobId] = useState<number>(-1); // Opens edit menu on specific row based on job id 
     const [editedJob, setEditedJob] = useState<Job | undefined>(); // Parent state which changes in Edit component, and passed to Save Component
+    const [errorFields, setErrorFields] = useState<Record<string, string>>({}); // error fields set by Save component and removed by Cancel, values used by Edit component
 
     const [successfulJobId, setSuccessfulJobId] = useState<number>(-1); // Used to check if edit or delete on job id was sucessful
 
@@ -124,6 +125,7 @@ const ManageContent: React.FC<{ userId: number }> = ({ userId }) => {
                                                     <Edit
                                                         job={job}
                                                         onEdit={setEditedJob}
+                                                        errorFields={errorFields}
                                                     />
                                                 ) : (
                                                     <View
@@ -137,13 +139,17 @@ const ManageContent: React.FC<{ userId: number }> = ({ userId }) => {
                                                 <Row>
                                                     {currentlyEditingJobId === job.id ? (
                                                         <>
-                                                            {/* TODO: Validate input data by using findErrorFields util */}
                                                             <SaveButton
                                                                 job={editedJob}
                                                                 automation_name={getAutomationNameById(job.automation_id)}
                                                                 onSave={setSuccessfulJobId}
+                                                                setErrorFields={setErrorFields}
                                                             />
-                                                            <CancelButton onClick={setCurrentlyEditingJobId} />
+                                                            <CancelButton
+                                                                onClick={setCurrentlyEditingJobId}
+                                                                setErrorFields={setErrorFields}
+                                                            />
+
                                                         </>
                                                     ) : (
                                                         <>

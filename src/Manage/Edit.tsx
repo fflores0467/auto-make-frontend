@@ -1,18 +1,17 @@
 import React, { Dispatch, SetStateAction, useState, useEffect, useMemo } from 'react';
 import { Job, time_units } from "../constants/types";
-import { findErrorFields, getLocalTodayDate, parseJobArguments, parseAutomationParameters } from '../constants/utils'; // Import utility functions
+import { getLocalTodayDate, parseJobArguments, parseAutomationParameters } from '../constants/utils'; // Import utility functions
 import { useFetchAutomations } from "../hooks/apiHooks";
 
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 
-export const Edit: React.FC<{ job: Job; onEdit: Dispatch<SetStateAction<Job | undefined>> }> = ({ job, onEdit }) => {
+export const Edit: React.FC<{ job: Job; onEdit: Dispatch<SetStateAction<Job | undefined>>; errorFields: Record<string, string> }> = ({ job, onEdit, errorFields }) => {
     // Parse job arguments only once when the job prop changes since this come in as strings from the db
     const initialArguments = useMemo(() => parseJobArguments(job.arguments), [job.arguments]);
 
     const { data: automations, loading, error } = useFetchAutomations();
-    const [errorFields, setErrorFields] = useState<Record<string, string>>({});
 
     // Local editable state for the job, parent job will be edited on form change via the useEffect
     const [editedJob, setEditedJob] = useState<Job>({
