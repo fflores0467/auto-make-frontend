@@ -1,9 +1,10 @@
 // src/features/setup/jobSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Job } from '../../constants/types';
+import { getLocalTodayDate } from '../../constants/utils'
 
 // Build start and end dates 
-const start_date: string = new Date().toISOString().split("T")[0];
+const start_date: string = getLocalTodayDate()
 const end_date: string = new Date(new Date().setDate(new Date().getDate() + 30)).toISOString().split('T')[0];
 
 // Create the slice
