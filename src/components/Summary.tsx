@@ -38,27 +38,23 @@ export const Summary: React.FC<SummaryProps> = ({
     // Use parent-provided job or fallback to Redux job for Review
     const job = parentJob || reduxJob;
 
-    const handleClose = () => {
-        setModalShow(false);
-    };
-
     // Handle form submission with dynamic API call based on mode
     const handleSubmit = async () => {
         const isSubmitted = await submitJob(mode, job, user.id, mode === "edit" ? (id) => {
             onSuccess?.(id);
-            handleClose();
+            setModalShow(false);
         } : undefined);
 
         if (mode === "create" && isSubmitted) {
             navigate('/setup/confirmation');
-            handleClose();
+            setModalShow(false)
         }
     };
 
     return (
         <Modal
             show={show}
-            onHide={handleClose}
+            onHide={() => setModalShow(false)}
             size="lg"
             aria-labelledby="contained-modal-title-vcenter"
             centered
