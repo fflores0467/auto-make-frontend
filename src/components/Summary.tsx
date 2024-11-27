@@ -1,10 +1,10 @@
-import axios from 'axios';
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { useSelector } from 'react-redux';
 import type { RootState } from '../store';
 
+import { useJobSubmission } from "../hooks/apiHooks";
 import { Job } from "../constants/types";
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
@@ -12,14 +12,12 @@ import Button from 'react-bootstrap/Button';
 import ListGroup from 'react-bootstrap/ListGroup';
 import Modal from 'react-bootstrap/Modal';
 
-const baseUrl = process.env.REACT_APP_API_BASE_URL;
-
 type SummaryProps = {
     show: boolean;
     setModalShow: (show: boolean) => void;
     job?: Job; // Parent-provided job data for Save
     automation_name?: string
-    mode?: 'create' | 'edit'; // Mode for Review (create) or Save (edit)
+    mode: 'create' | 'edit'; // Mode for Review (create) or Save (edit)
     onSuccess?: Dispatch<SetStateAction<number>>;
 };
 
@@ -32,89 +30,28 @@ export const Summary: React.FC<SummaryProps> = ({
     onSuccess,
 }) => {
     const navigate = useNavigate();
+    const { submitJob, loading, error } = useJobSubmission();
     const user = useSelector((state: RootState) => state.user);
     const reduxJob = useSelector((state: RootState) => state.job);
     const automation = useSelector((state: RootState) => state.automation);
-
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
 
     // Use parent-provided job or fallback to Redux job for Review
     const job = parentJob || reduxJob;
 
     const handleClose = () => {
-        setError('');
-        setLoading(false);
         setModalShow(false);
     };
 
-    // TODO: Move update and create api calls to hooks
     // Handle form submission with dynamic API call based on mode
     const handleSubmit = async () => {
-        setError('');
-        setLoading(true);
-
-        try {
-            if (user.id < 0) {
-                setError('Please Sign In.');
-                return;
-            }
-
-            const body = {
-                name: job.name,
-                start_date: job.start_date,
-                end_date: job.end_date,
-                active: true,
-                continuous: job.continuous,
-                interval: job.interval,
-                time_unit: job.time_unit,
-                specific_time: job.specific_time,
-                automation_id: job.automation_id,
-                user_id: user.id,
-                parameters: job.arguments,
-            };
-
-            if (mode === 'create') {
-                // Create a new job
-                await axios.post(`${baseUrl}/create-job`, body, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-                navigate('/setup/confirmation'); // Redirect after creation
-            } else if (mode === 'edit') {
-                // Edit an existing job
-                await axios.put(`${baseUrl}/update-job/`, body, {
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    params: {
-                        id: job.id, // Pass the job ID as a query parameter
-                    },
-                });
-                if (onSuccess) {
-                    onSuccess(job.id)
-                }
-            }
-
+        const isSubmitted = await submitJob(mode, job, user.id, mode === "edit" ? (id) => {
+            onSuccess?.(id);
             handleClose();
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
-                const errorMessage =
-                    error.response?.data?.message ||
-                    'An axios error occurred. Please try again.';
-                console.error('Error response:', errorMessage);
-                setError(
-                    errorMessage.includes('SQLITE_CONSTRAINT: UNIQUE constraint failed')
-                        ? `"${job.name}" is Already in Use`
-                        : `${errorMessage}`
-                );
-                return;
-            }
-            console.error('An unknown error occurred:', (error as Error).message || error);
-            setError('An unknown error occurred. Please try again later.');
-        } finally {
-            setLoading(false);
+        } : undefined);
+
+        if (mode === "create" && isSubmitted) {
+            navigate('/setup/confirmation');
+            handleClose();
         }
     };
 
